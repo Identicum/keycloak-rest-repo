@@ -24,7 +24,6 @@ public class KeycloakRestRepoProvider implements UserStorageProvider, UserLookup
 	private static final Logger logger = Logger.getLogger(KeycloakRestRepoProvider.class);
 	
     protected KeycloakSession session;
-    protected Properties properties;
     protected ComponentModel model;
     
     // map of loaded users in this transaction
@@ -32,12 +31,11 @@ public class KeycloakRestRepoProvider implements UserStorageProvider, UserLookup
     
     protected RestHandler restHandler;
 
-    public KeycloakRestRepoProvider(KeycloakSession session, ComponentModel model, String baseURL) {
+    public KeycloakRestRepoProvider(KeycloakSession session, ComponentModel model, RestHandler restHandler) {
     	logger.warn("Initializing new RestRepoProvider");
     	this.session = session;
     	this.model = model;
-    	this.restHandler = new RestHandler();
-    	this.restHandler.setBaseURL(baseURL);
+    	this.restHandler = restHandler;
     }
 	
 	@Override

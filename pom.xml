@@ -5,7 +5,10 @@
   <version>0.0.1-SNAPSHOT</version>
   <name>Keycloak Rest Repo</name>
   <description>Plugin para consumir identidades de Keycloak</description>
-  
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
   <dependencies>
   	<dependency>
         <groupId>org.keycloak</groupId>

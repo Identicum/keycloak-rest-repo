@@ -1,18 +1,22 @@
 package com.identicum.keycloak;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
 
-import javax.json.Json;
-import javax.json.JsonObject;
-import javax.json.JsonReader;
+import javax.json.*;
 
 import org.apache.http.HeaderElement;
 import org.apache.http.HeaderElementIterator;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.conn.ConnectionKeepAliveStrategy;
+import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -99,6 +103,32 @@ public class RestHandler {
 	
 	public void close() {
 		//this.httpClient.close();
+	}
+
+	public void setUserStatus(String username, boolean active) {
+		logger.infov("Setting user inactive: {0}", username);
+
+		HttpPatch httpPatch = new HttpPatch(this.getBaseURL() + "/users/" + username);
+		httpPatch.setHeader(HTTP.CONN_DIRECTIVE, HTTP.CONN_KEEP_ALIVE);
+		httpPatch.setHeader("Content-Type", "application/json");
+		CloseableHttpResponse response;
+
+		String body = "{ \"active\": " + String.valueOf(active) + "}";
+		logger.infov("Setting patch body as: {0}", body);
+
+		try {
+			HttpEntity httpEntity = new ByteArrayEntity(body.getBytes("UTF-8"));
+			httpPatch.setEntity(httpEntity);
+			response = this.httpClient.execute(httpPatch);
+			this.analyzeResponse(response);
+
+			logger.infov("Status received setting inactive user {0}: {1}", username, response.getStatusLine().getStatusCode());
+			// I have to consume the entity to apply the Keep-Alive header. For some reason it is not applied if I don't read the entity
+			EntityUtils.consume(response.getEntity());
+		}
+		catch(IOException io) {
+			throw new RuntimeException("Error getting user " + username, io);
+		}
 	}
 	
 }

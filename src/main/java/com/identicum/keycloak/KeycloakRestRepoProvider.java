@@ -27,7 +27,7 @@ public class KeycloakRestRepoProvider implements UserStorageProvider, UserLookup
     protected ComponentModel model;
     
     // map of loaded users in this transaction
-    protected Map<String, UserModel> loadedUsers = new HashMap<>();
+    protected Map<String, RestUserAdapter> loadedUsers = new HashMap<>();
     
     protected RestHandler restHandler;
 
@@ -57,10 +57,11 @@ public class KeycloakRestRepoProvider implements UserStorageProvider, UserLookup
 	@Override
 	public UserModel getUserByUsername(String username, RealmModel realm) {	
 		logger.infov("Cache size is: {0}", loadedUsers.size());
-		UserModel adapter = loadedUsers.get(username);
+		RestUserAdapter adapter = loadedUsers.get(username);
 		if (adapter == null) {
 			JsonObject userJson = this.restHandler.findUserByUsername(username);
 			adapter = new RestUserAdapter(session, realm, model, userJson);
+			adapter.setHandler(this.restHandler);
 			logger.infov("Setting user {0} into cache", username);
 			loadedUsers.put(username, adapter);
 		}

@@ -10,6 +10,7 @@ import org.keycloak.storage.adapter.AbstractUserAdapter;
 
 public class RestUserAdapter extends AbstractUserAdapter {
 
+	RestHandler handler;
 	JsonObject user;
 	String keycloakId;
 
@@ -17,6 +18,10 @@ public class RestUserAdapter extends AbstractUserAdapter {
 		super(session, realm, model);
 		this.user = user;
 		this.keycloakId = StorageId.keycloakId(model, user.getString("username"));
+	}
+
+	public void setHandler(RestHandler handler) {
+		this.handler = handler;
 	}
 
 	@Override
@@ -44,4 +49,8 @@ public class RestUserAdapter extends AbstractUserAdapter {
 		return user.getString("email");
 	}
 
+	@Override
+	public void setEnabled(boolean enabled) {
+		this.handler.setUserStatus(this.getUsername(), enabled);
+	}
 }

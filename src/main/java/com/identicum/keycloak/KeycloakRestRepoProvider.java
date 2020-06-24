@@ -1,25 +1,22 @@
 package com.identicum.keycloak;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
+import javax.json.JsonArray;
 import javax.json.JsonObject;
 
 import org.jboss.logging.Logger;
 import org.keycloak.component.ComponentModel;
 import org.keycloak.credential.CredentialInput;
 import org.keycloak.credential.CredentialInputValidator;
-import org.keycloak.models.KeycloakSession;
-import org.keycloak.models.RealmModel;
-import org.keycloak.models.UserCredentialModel;
-import org.keycloak.models.UserModel;
+import org.keycloak.models.*;
 import org.keycloak.models.credential.PasswordCredentialModel;
 import org.keycloak.storage.StorageId;
 import org.keycloak.storage.UserStorageProvider;
 import org.keycloak.storage.user.UserLookupProvider;
+import org.keycloak.storage.user.UserQueryProvider;
 
-public class KeycloakRestRepoProvider implements UserStorageProvider, UserLookupProvider, CredentialInputValidator {
+public class KeycloakRestRepoProvider implements UserStorageProvider, UserLookupProvider, CredentialInputValidator, UserQueryProvider {
 
 	private static final Logger logger = Logger.getLogger(KeycloakRestRepoProvider.class);
 	
@@ -32,7 +29,7 @@ public class KeycloakRestRepoProvider implements UserStorageProvider, UserLookup
     protected RestHandler restHandler;
 
     public KeycloakRestRepoProvider(KeycloakSession session, ComponentModel model, RestHandler restHandler) {
-    	logger.warn("Initializing new RestRepoProvider");
+    	logger.info("Initializing new RestRepoProvider");
     	this.session = session;
     	this.model = model;
     	this.restHandler = restHandler;
@@ -95,6 +92,81 @@ public class KeycloakRestRepoProvider implements UserStorageProvider, UserLookup
 	@Override
 	public boolean supportsCredentialType(String credentialType) {
 		return credentialType.equals(PasswordCredentialModel.TYPE);
+	}
+
+	@Override
+	public int getUsersCount(RealmModel realmModel) {
+		return 0;
+	}
+
+	@Override
+	public List<UserModel> getUsers(RealmModel realmModel) {
+		return getUsers(realmModel, 0, Integer.MAX_VALUE);
+	}
+
+	@Override
+	public List<UserModel> getUsers(RealmModel realmModel, int from, int pageSize) {
+		return searchForUser("", realmModel, from, pageSize);
+	}
+
+	@Override
+	public List<UserModel> searchForUser(String pattern, RealmModel realmModel) {
+		return searchForUser(pattern, realmModel, 0, Integer.MAX_VALUE);
+	}
+
+	@Override
+	public List<UserModel> searchForUser(String pattern, RealmModel realmModel, int from, int pageSize) {
+		logger.infov("Searching users with pattern: {0} from {1} with pageSize {2}", pattern, from, pageSize);
+		JsonArray usersJson = this.restHandler.findUsers(pattern);
+		logger.infov("Found {0} users", usersJson.size());
+		List<UserModel> users = new LinkedList<>();
+		for(int i=from; i < Math.min(usersJson.size(), from + pageSize); i++) {
+			logger.infov("Converting user {0} to UserModel", usersJson.getJsonObject(i));
+			RestUserAdapter userModel = new RestUserAdapter(session, realmModel, model, usersJson.getJsonObject(i));
+			userModel.setHandler(this.restHandler);
+			users.add(userModel);
+		}
+		return users;
+	}
+
+	@Override
+	public List<UserModel> searchForUser(Map<String, String> map, RealmModel realmModel) {
+		return this.searchForUser(map.get("username"), realmModel);
+	}
+
+	@Override
+	public List<UserModel> searchForUser(Map<String, String> map, RealmModel realmModel, int from, int pageSize) {
+		return this.searchForUser(map.get("username"), realmModel, from, pageSize);
+	}
+
+	@Override
+	public List<UserModel> getGroupMembers(RealmModel realmModel, GroupModel groupModel, int from, int pageSize) {
+		return Collections.EMPTY_LIST;
+	}
+
+	@Override
+	public List<UserModel> getGroupMembers(RealmModel realmModel, GroupModel groupModel) {
+		return Collections.EMPTY_LIST;
+	}
+
+	@Override
+	public List<UserModel> searchForUserByUserAttribute(String s, String s1, RealmModel realmModel) {
+		return Collections.EMPTY_LIST;
+	}
+
+	@Override
+	public int getUsersCount(RealmModel realm, boolean includeServiceAccount) {
+		return this.getUsers(realm).size();
+	}
+
+	@Override
+	public List<UserModel> getRoleMembers(RealmModel realm, RoleModel role) {
+		return Collections.EMPTY_LIST;
+	}
+
+	@Override
+	public List<UserModel> getRoleMembers(RealmModel realm, RoleModel role, int from, int pageSize) {
+		return Collections.EMPTY_LIST;
 	}
 
 }

@@ -69,6 +69,7 @@ public class KeycloakRestRepoProviderFactory implements UserStorageProviderFacto
 			URL url = new URL(baseURL);
 			HttpURLConnection urlConn = (HttpURLConnection) url.openConnection();
 			urlConn.connect();
+			urlConn.disconnect();
 		} catch (IOException e) {
 			throw new ComponentValidationException("Error accessing the base url", e);
 		}

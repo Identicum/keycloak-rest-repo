@@ -17,7 +17,7 @@ public class RestUserAdapter extends AbstractUserAdapter {
 	public RestUserAdapter(KeycloakSession session, RealmModel realm, ComponentModel model, JsonObject user) {
 		super(session, realm, model);
 		this.user = user;
-		this.keycloakId = StorageId.keycloakId(model, user.getString("username"));
+		this.keycloakId = StorageId.keycloakId(model, String.valueOf(user.getInt("id")));
 	}
 
 	public void setHandler(RestHandler handler) {

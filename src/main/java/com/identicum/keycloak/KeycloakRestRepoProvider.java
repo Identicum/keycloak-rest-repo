@@ -48,6 +48,7 @@ public class KeycloakRestRepoProvider implements UserStorageProvider, UserLookup
 	public UserModel getUserById(String id, RealmModel realm) {
 		StorageId storageId = new StorageId(id);
 		String username = storageId.getExternalId();
+		realm.getClientByClientId("")
 		return getUserByUsername(username, realm);
 	}
 
@@ -82,7 +83,6 @@ public class KeycloakRestRepoProvider implements UserStorageProvider, UserLookup
 		logger.infov("Identicum - Validating user {0}", user.getUsername());
 		if (!supportsCredentialType(input.getType()) || !(input instanceof UserCredentialModel)) return false;
 		logger.infov("Identicum - Credential {0}", input.getChallengeResponse());
-		//return password.equals(input.getChallengeResponse());
 		return this.restHandler.authenticate(user.getUsername(), input.getChallengeResponse());
 	}
 

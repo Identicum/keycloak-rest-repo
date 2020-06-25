@@ -33,6 +33,17 @@ public class KeycloakRestRepoProviderFactory implements UserStorageProviderFacto
 				.defaultValue("5")
 				.helpText("Max http connections in pool")
 				.add();
+		builder.property().name("authType")
+				.type(ProviderConfigProperty.LIST_TYPE).label("Api Authorization")
+				.options(RestConfiguration.AUTH_NONE, RestConfiguration.AUTH_OAUTH)
+				.defaultValue(RestConfiguration.AUTH_NONE)
+				.helpText("Authorization method used by consumed API")
+				.add();
+		builder.property().name("clientId")
+				.type(ProviderConfigProperty.STRING_TYPE).label("Client Id")
+				.defaultValue("")
+				.helpText("Local client_id to negotiate the Access Token")
+				.add();
 		configMetadata = builder.build();
 	}
 
@@ -41,12 +52,8 @@ public class KeycloakRestRepoProviderFactory implements UserStorageProviderFacto
 	@Override
 	public KeycloakRestRepoProvider create(KeycloakSession session, ComponentModel model) {
 		if(this.restHandler == null) {
-			String baseURL = model.getConfig().getFirst("baseURL");
-			logger.infov("Loaded baseURL from module properties: {0}", baseURL);
-
-			String maxConnections = model.getConfig().getFirst("maxHttpConnections");
-			logger.infov("Loaded maxHttpConnections from module properties: {0}", maxConnections);
-			this.restHandler = new RestHandler(baseURL, Integer.parseInt(maxConnections));
+			RestConfiguration configuration = new RestConfiguration(model.getConfig());
+			this.restHandler = new RestHandler(configuration);
 		}
 		return new KeycloakRestRepoProvider(session, model, this.restHandler);
 	}

@@ -53,4 +53,6 @@ public class RestUserAdapter extends AbstractUserAdapter {
 	public void setEnabled(boolean enabled) {
 		this.handler.setUserStatus(this.getUsername(), enabled);
 	}
+
+
 }

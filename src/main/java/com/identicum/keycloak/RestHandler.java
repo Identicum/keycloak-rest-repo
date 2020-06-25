@@ -2,10 +2,7 @@ package com.identicum.keycloak;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPatch;
-import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.*;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -27,27 +24,23 @@ public class RestHandler {
 	private static final Logger logger = Logger.getLogger(RestHandler.class);
 	protected CloseableHttpClient httpClient;
 
-	private String baseURL;
+	private RestConfiguration configuration;
 
-	public RestHandler(String baseURL, int maxConnections) {
+	private String accessToken;
+	private String refreshToken;
+	private Long tokenExpiresAt;
+
+	public RestHandler(RestConfiguration configuration) {
 		logger.infov("Initializing HttpClient pool.");
 		PoolingHttpClientConnectionManager poolingConnManager = new PoolingHttpClientConnectionManager();
-		poolingConnManager.setDefaultMaxPerRoute(maxConnections);
+		poolingConnManager.setDefaultMaxPerRoute(configuration.getMaxConnections());
 		this.httpClient = HttpClients.custom().setConnectionManager(poolingConnManager).build();
-		this.baseURL = baseURL;
-	}
-
-	public String getBaseURL() {
-		return this.baseURL;
-	}
-
-	public void setBaseURL(String baseURL) {
-		this.baseURL = baseURL;
+		this.configuration = configuration;
 	}
 
 	public boolean authenticate(String username, String password) {
 		logger.infov("Authenticating user: {0}", username);
-		HttpPost httpPost = new HttpPost(this.getBaseURL() + "/authenticate");
+		HttpPost httpPost = new HttpPost(this.configuration.getBaseUrl() + "/authenticate");
 		JsonObject json = Json.createObjectBuilder()
 				.add("username", username)
 				.add("password", password)
@@ -78,7 +71,7 @@ public class RestHandler {
 
 	public JsonObject findUserByUsername(String username) {
 		logger.infov("Thread id {0} - Searching user: {1}", Thread.currentThread().getId(), username);
-		HttpGet httpGet = new HttpGet(this.getBaseURL() + "/users/" + username);
+		HttpGet httpGet = new HttpGet(this.configuration.getBaseUrl() + "/users/" + username);
 		httpGet.setHeader(HTTP.CONN_DIRECTIVE, HTTP.CONN_KEEP_ALIVE);
 		CloseableHttpResponse response = null;
 		try {
@@ -108,7 +101,7 @@ public class RestHandler {
 	public void setUserStatus(String username, boolean active) {
 		logger.infov("Setting user inactive: {0}", username);
 
-		HttpPatch httpPatch = new HttpPatch(this.getBaseURL() + "/users/" + username);
+		HttpPatch httpPatch = new HttpPatch(this.configuration.getBaseUrl() + "/users/" + username);
 		httpPatch.setHeader(HTTP.CONN_DIRECTIVE, HTTP.CONN_KEEP_ALIVE);
 		httpPatch.setHeader("Content-Type", "application/json");
 		CloseableHttpResponse response = null;
@@ -137,7 +130,7 @@ public class RestHandler {
 	public JsonArray findUsers(String username) {
 		logger.infov("Finding users with username: {0}", username);
 
-		String searchUrl = this.getBaseURL() + "/users";
+		String searchUrl = this.configuration.getBaseUrl() + "/users";
 		if(username != null) {
 			searchUrl += "?username=" + username;
 		}
@@ -173,5 +166,16 @@ public class RestHandler {
 			} catch (IOException io) {
 				logger.warn("Error closing http response", io);
 			}
+	}
+
+	private void executeCall(HttpRequestBase request) {
+
+	}
+
+	private String getAccessToken() {
+		if(this.accessToken == null) {
+
+		}
+
 	}
 }

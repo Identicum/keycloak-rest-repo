@@ -8,6 +8,7 @@ import javax.json.JsonObject;
 import org.jboss.logging.Logger;
 import org.keycloak.component.ComponentModel;
 import org.keycloak.credential.CredentialInput;
+import org.keycloak.credential.CredentialInputUpdater;
 import org.keycloak.credential.CredentialInputValidator;
 import org.keycloak.models.*;
 import org.keycloak.models.credential.PasswordCredentialModel;
@@ -15,8 +16,14 @@ import org.keycloak.storage.StorageId;
 import org.keycloak.storage.UserStorageProvider;
 import org.keycloak.storage.user.UserLookupProvider;
 import org.keycloak.storage.user.UserQueryProvider;
+import org.keycloak.storage.user.UserRegistrationProvider;
 
-public class KeycloakRestRepoProvider implements UserStorageProvider, UserLookupProvider, CredentialInputValidator, UserQueryProvider {
+public class KeycloakRestRepoProvider implements CredentialInputValidator,
+												 CredentialInputUpdater,
+												 UserStorageProvider,
+												 UserLookupProvider,
+												 UserQueryProvider,
+												 UserRegistrationProvider {
 
 	private static final Logger logger = Logger.getLogger(KeycloakRestRepoProvider.class);
 	
@@ -46,6 +53,7 @@ public class KeycloakRestRepoProvider implements UserStorageProvider, UserLookup
 
 	@Override
 	public UserModel getUserById(String id, RealmModel realm) {
+		logger.infov("Getting user by id: {0}", id);
 		StorageId storageId = new StorageId(id);
 		String username = storageId.getExternalId();
 		return getUserByUsername(username, realm);
@@ -57,6 +65,10 @@ public class KeycloakRestRepoProvider implements UserStorageProvider, UserLookup
 		RestUserAdapter adapter = loadedUsers.get(username);
 		if (adapter == null) {
 			JsonObject userJson = this.restHandler.findUserByUsername(username);
+			if(userJson == null) {
+				logger.infov("User {0} not found in repo", username);
+				return null;
+			}
 			adapter = new RestUserAdapter(session, realm, model, userJson);
 			adapter.setHandler(this.restHandler);
 			logger.infov("Setting user {0} into cache", username);
@@ -70,8 +82,7 @@ public class KeycloakRestRepoProvider implements UserStorageProvider, UserLookup
 
 	@Override
 	public boolean isConfiguredFor(RealmModel realm, UserModel user, String credentialType) {
-		// TODO Auto-generated method stub
-		return false;
+		return credentialType.equals(PasswordCredentialModel.TYPE);
 	}
 
 	/**
@@ -82,7 +93,6 @@ public class KeycloakRestRepoProvider implements UserStorageProvider, UserLookup
 		logger.infov("Identicum - Validating user {0}", user.getUsername());
 		if (!supportsCredentialType(input.getType()) || !(input instanceof UserCredentialModel)) return false;
 		logger.infov("Identicum - Credential {0}", input.getChallengeResponse());
-		//return password.equals(input.getChallengeResponse());
 		return this.restHandler.authenticate(user.getUsername(), input.getChallengeResponse());
 	}
 
@@ -92,6 +102,25 @@ public class KeycloakRestRepoProvider implements UserStorageProvider, UserLookup
 	@Override
 	public boolean supportsCredentialType(String credentialType) {
 		return credentialType.equals(PasswordCredentialModel.TYPE);
+	}
+
+	@Override
+	public boolean updateCredential(RealmModel realmModel, UserModel userModel, CredentialInput credentialInput) {
+		this.restHandler.setUserAttribute(userModel.getUsername(), "password", credentialInput.getChallengeResponse());
+		return true;
+	}
+
+	@Override
+	public void disableCredentialType(RealmModel realmModel, UserModel userModel, String credentialType) {
+		if (!supportsCredentialType(credentialType)) return;
+		this.restHandler.setUserAttribute(userModel.getUsername(), "password", RestUserAdapter.randomPassword());
+	}
+
+	@Override
+	public Set<String> getDisableableCredentialTypes(RealmModel realmModel, UserModel userModel) {
+		Set<String> set = new HashSet<>();
+		set.add(PasswordCredentialModel.TYPE);
+		return set;
 	}
 
 	@Override
@@ -169,4 +198,19 @@ public class KeycloakRestRepoProvider implements UserStorageProvider, UserLookup
 		return Collections.EMPTY_LIST;
 	}
 
+	@Override
+	public UserModel addUser(RealmModel realmModel, String username) {
+		JsonObject user = this.restHandler.createUser(username);
+		RestUserAdapter adapter = new RestUserAdapter(session, realmModel, model, user);
+		adapter.setHandler(this.restHandler);
+		logger.infov("Setting user {0} into cache", username);
+		loadedUsers.put(username, adapter);
+		return adapter;
+	}
+
+	@Override
+	public boolean removeUser(RealmModel realmModel, UserModel userModel) {
+		this.restHandler.deleteUser(userModel.getUsername());
+		return true;
+	}
 }

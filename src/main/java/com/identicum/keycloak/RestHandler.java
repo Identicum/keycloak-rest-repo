@@ -2,10 +2,7 @@ package com.identicum.keycloak;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPatch;
-import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.*;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -15,10 +12,7 @@ import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 import org.jboss.logging.Logger;
 
-import javax.json.Json;
-import javax.json.JsonArray;
-import javax.json.JsonObject;
-import javax.json.JsonReader;
+import javax.json.*;
 import java.io.IOException;
 import java.io.StringReader;
 
@@ -85,6 +79,10 @@ public class RestHandler {
 			response = this.httpClient.execute(httpGet);
 			this.analyzeResponse(response);
 
+			if(response.getStatusLine().getStatusCode() == 404) {
+				return null;
+			}
+
 			String responseString = EntityUtils.toString(response.getEntity(), "UTF-8");
 			JsonReader reader = Json.createReader(new StringReader(responseString));
 			return reader.readObject();
@@ -99,35 +97,44 @@ public class RestHandler {
 
 	private void analyzeResponse(HttpResponse response) {
 		logger.infov("Value received from http request: {0}", response.getStatusLine().getStatusCode());
+		if(response.getStatusLine().getStatusCode() != 200) {
+			try {
+				String responseString = EntityUtils.toString(response.getEntity(), "UTF-8");
+				logger.errorv("Error received from API: {0}", responseString);
+			}
+			catch(IOException io) {
+				logger.error("Error reading response", io);
+			}
+		}
 	}
 
 	public void close() {
 		//this.httpClient.close();
 	}
 
-	public void setUserStatus(String username, boolean active) {
-		logger.infov("Setting user inactive: {0}", username);
+	public void setUserAttribute(String username, String attribute, String value) {
+		logger.infov("Setting user {0} attribute {1}: {2}", username, attribute, value);
 
 		HttpPatch httpPatch = new HttpPatch(this.getBaseURL() + "/users/" + username);
 		httpPatch.setHeader(HTTP.CONN_DIRECTIVE, HTTP.CONN_KEEP_ALIVE);
 		httpPatch.setHeader("Content-Type", "application/json");
 		CloseableHttpResponse response = null;
 
-		String body = "{ \"active\": " + String.valueOf(active) + "}";
-		logger.infov("Setting patch body as: {0}", body);
+		JsonObject requestJson = Json.createObjectBuilder().add(attribute, value).build();
+		logger.infov("Setting patch body as: {0}", requestJson.toString());
 
 		try {
-			HttpEntity httpEntity = new ByteArrayEntity(body.getBytes("UTF-8"));
+			HttpEntity httpEntity = new ByteArrayEntity(requestJson.toString().getBytes("UTF-8"));
 			httpPatch.setEntity(httpEntity);
 			response = this.httpClient.execute(httpPatch);
 			this.analyzeResponse(response);
 
-			logger.infov("Status received setting inactive user {0}: {1}", username, response.getStatusLine().getStatusCode());
+			logger.infov("Status received setting modifying user {0}: {1}", username, response.getStatusLine().getStatusCode());
 			// I have to consume the entity to apply the Keep-Alive header. For some reason it is not applied if I don't read the entity
 			EntityUtils.consume(response.getEntity());
 		}
 		catch(IOException io) {
-			throw new RuntimeException("Error getting user " + username, io);
+			throw new RuntimeException("Error modifying user " + username, io);
 		}
 		finally {
 			this.closeQuietly(response);
@@ -160,6 +167,66 @@ public class RestHandler {
 		catch(IOException io) {
 			logger.error("Error calling GET to find users", io);
 			throw new RuntimeException("Error getting user " + username, io);
+		}
+		finally {
+			this.closeQuietly(response);
+		}
+	}
+
+	public JsonObject createUser(String username) {
+		logger.infov("Creating user {0}", username);
+
+		HttpPost httpPost = new HttpPost(this.getBaseURL() + "/users");
+		httpPost.setHeader(HTTP.CONN_DIRECTIVE, HTTP.CONN_KEEP_ALIVE);
+		httpPost.setHeader("Content-Type", "application/json");
+		CloseableHttpResponse response = null;
+
+		JsonObjectBuilder builder = Json.createObjectBuilder();
+		builder.add("username", username);
+		builder.add("email", "temporary@localhost.com");
+		builder.add("firstName", "TempFirstName");
+		builder.add("lastName", "TempLastName");
+		builder.add("password", RestUserAdapter.randomPassword());
+		builder.add("active", Boolean.TRUE);
+
+		JsonObject requestJson = builder.build();
+		logger.infov("Setting create body as: {0}", requestJson.toString());
+
+		try {
+			HttpEntity httpEntity = new ByteArrayEntity(requestJson.toString().getBytes("UTF-8"));
+			httpPost.setEntity(httpEntity);
+			response = this.httpClient.execute(httpPost);
+			this.analyzeResponse(response);
+
+			String responseString = EntityUtils.toString(response.getEntity(), "UTF-8");
+			JsonReader reader = Json.createReader(new StringReader(responseString));
+			return reader.readObject();
+
+		}
+		catch(IOException io) {
+			throw new RuntimeException("Error modifying user " + username, io);
+		}
+		finally {
+			this.closeQuietly(response);
+		}
+	}
+
+	public void deleteUser(String username) {
+		logger.infov("Deleting user {0}", username);
+
+		HttpDelete httpDelete = new HttpDelete(this.getBaseURL() + "/users/" + username);
+		httpDelete.setHeader(HTTP.CONN_DIRECTIVE, HTTP.CONN_KEEP_ALIVE);
+		CloseableHttpResponse response = null;
+
+		try {
+			response = this.httpClient.execute(httpDelete);
+			this.analyzeResponse(response);
+			EntityUtils.consume(response.getEntity());
+			return;
+
+		}
+		catch(IOException io) {
+			throw new RuntimeException("Error deleting user " + username, io);
 		}
 		finally {
 			this.closeQuietly(response);

@@ -14,4 +14,11 @@ Plugin para consumo de identidades en Keycloak mediante API Rest
 
 En el ejemplo se encuentra integrado con la rest-users-api (https://github.com/Identicum/rest-users-api)
 
-Implementadas las funciones `findByUsername`, `searchForUser` y `authenticate`.
+Implementadas todas las funciones de gestión de usuarios:
+- Listar todos los usuarios
+- Buscar por nombre
+- Alta de usuario
+- Modificación de usuario
+- Modificación de contraseña
+- Bloqueo de usuario
+- Eliminación de usuario

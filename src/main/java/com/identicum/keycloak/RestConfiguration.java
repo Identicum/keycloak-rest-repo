@@ -2,6 +2,7 @@ package com.identicum.keycloak;
 
 import org.jboss.logging.Logger;
 import org.keycloak.common.util.MultivaluedHashMap;
+import org.keycloak.models.KeycloakContext;
 
 public class RestConfiguration {
 
@@ -14,6 +15,7 @@ public class RestConfiguration {
 	private Integer maxConnections;
 	private String authType;
 	private String clientId;
+	private KeycloakContext context;
 
 	public String getBaseUrl() {
 		return baseUrl;
@@ -47,6 +49,14 @@ public class RestConfiguration {
 		this.authType = authType;
 	}
 
+	public KeycloakContext getContext() {
+		return context;
+	}
+
+	public void setContext(KeycloakContext context) {
+		this.context = context;
+	}
+
 	public RestConfiguration(MultivaluedHashMap<String, String> keycloakConfig) {
 		this.baseUrl = keycloakConfig.getFirst("baseURL");
 		logger.infov("Loaded baseURL from module properties: {0}", this.baseUrl);
@@ -63,5 +73,15 @@ public class RestConfiguration {
 
 		this.clientId = keycloakConfig.getFirst("clientId");
 		logger.infov("Loaded clientId from module properties: {0}", this.clientId);
+	}
+
+	@Override
+	public String toString() {
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("baseUrl: " + this.baseUrl + ", ");
+		buffer.append("maxConnections: " + this.maxConnections + ", ");
+		buffer.append("authType: " + this.authType + ", ");
+		buffer.append("clientId: " + this.clientId);
+		return buffer.toString();
 	}
 }

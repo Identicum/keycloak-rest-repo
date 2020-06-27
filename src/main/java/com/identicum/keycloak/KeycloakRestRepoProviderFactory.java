@@ -3,7 +3,9 @@ package com.identicum.keycloak;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.jboss.logging.Logger;
 import org.keycloak.Config;
@@ -16,7 +18,6 @@ import org.keycloak.provider.ProviderConfigurationBuilder;
 import org.keycloak.storage.UserStorageProviderFactory;
 
 public class KeycloakRestRepoProviderFactory implements UserStorageProviderFactory<KeycloakRestRepoProvider> {
-
 
 	private static final Logger logger = Logger.getLogger(KeycloakRestRepoProviderFactory.class);
 	protected static final List<ProviderConfigProperty> configMetadata;
@@ -47,15 +48,25 @@ public class KeycloakRestRepoProviderFactory implements UserStorageProviderFacto
 		configMetadata = builder.build();
 	}
 
-	private RestHandler restHandler;
+	private Map<String,RestHandler> restHandlers = new HashMap<>();
 
 	@Override
 	public KeycloakRestRepoProvider create(KeycloakSession session, ComponentModel model) {
-		if(this.restHandler == null) {
+		String realm = session.getContext().getRealm().getName();
+		logger.infov("Creating KeycloakRestRepoProvider for realm: {0}", realm);
+
+		RestHandler handler = this.restHandlers.get(realm);
+		if(handler == null) {
+			logger.infov("Creating a new instance of restHandler for realm: {0}", realm);
 			RestConfiguration configuration = new RestConfiguration(model.getConfig());
-			this.restHandler = new RestHandler(configuration);
+			configuration.setContext(session.getContext());
+			handler = new RestHandler(configuration);
+			this.restHandlers.put(realm, handler);
 		}
-		return new KeycloakRestRepoProvider(session, model, this.restHandler);
+		else {
+			logger.infov("RestHandler already instantiated");
+		}
+		return new KeycloakRestRepoProvider(session, model, handler);
 	}
 
 	@Override

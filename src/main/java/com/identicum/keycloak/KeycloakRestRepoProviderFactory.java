@@ -9,6 +9,7 @@ import java.util.Map;
 
 import org.jboss.logging.Logger;
 import org.keycloak.Config;
+import org.keycloak.common.util.MultivaluedHashMap;
 import org.keycloak.component.ComponentModel;
 import org.keycloak.component.ComponentValidationException;
 import org.keycloak.models.ClientModel;
@@ -22,6 +23,8 @@ public class KeycloakRestRepoProviderFactory implements UserStorageProviderFacto
 
 	private static final Logger logger = Logger.getLogger(KeycloakRestRepoProviderFactory.class);
 	protected static final List<ProviderConfigProperty> configMetadata;
+
+	private MultivaluedHashMap<String, String> lastConfiguration = null;
 
 	static {
 		ProviderConfigurationBuilder builder = ProviderConfigurationBuilder.create();
@@ -52,7 +55,7 @@ public class KeycloakRestRepoProviderFactory implements UserStorageProviderFacto
 				.helpText("Username used for Basic Authentication")
 				.add();
 		builder.property().name("basicPassword")
-				.type(ProviderConfigProperty.STRING_TYPE).label("Auth Basic Password")
+				.type(ProviderConfigProperty.PASSWORD).label("Auth Basic Password")
 				.defaultValue("")
 				.helpText("Password used for Basic Authentication")
 				.add();
@@ -67,12 +70,13 @@ public class KeycloakRestRepoProviderFactory implements UserStorageProviderFacto
 		logger.infov("Creating KeycloakRestRepoProvider for realm: {0}", realm);
 
 		RestHandler handler = this.restHandlers.get(realm);
-		if(handler == null) {
+		if(handler == null || !model.getConfig().equals( this.lastConfiguration )) {
 			logger.infov("Creating a new instance of restHandler for realm: {0}", realm);
 			RestConfiguration configuration = new RestConfiguration(model.getConfig());
 			configuration.setContext(session.getContext());
 			handler = new RestHandler(configuration);
 			this.restHandlers.put(realm, handler);
+			this.lastConfiguration = model.getConfig();
 		}
 		else {
 			logger.infov("RestHandler already instantiated");

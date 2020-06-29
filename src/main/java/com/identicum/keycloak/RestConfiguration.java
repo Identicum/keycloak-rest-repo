@@ -7,6 +7,7 @@ import org.keycloak.models.KeycloakContext;
 public class RestConfiguration {
 
 	public static final String AUTH_NONE = "NONE";
+	public static final String AUTH_BASIC = "BASIC";
 	public static final String AUTH_OAUTH = "OAUTH";
 
 	private static final Logger logger = Logger.getLogger(RestConfiguration.class);
@@ -15,6 +16,8 @@ public class RestConfiguration {
 	private Integer maxConnections;
 	private String authType;
 	private String clientId;
+	private String basicUsername;
+	private String basicPassword;
 	private KeycloakContext context;
 
 	public String getBaseUrl() {
@@ -57,6 +60,22 @@ public class RestConfiguration {
 		this.context = context;
 	}
 
+	public String getBasicUsername() {
+		return basicUsername;
+	}
+
+	public void setBasicUsername(String basicUsername) {
+		this.basicUsername = basicUsername;
+	}
+
+	public String getBasicPassword() {
+		return basicPassword;
+	}
+
+	public void setBasicPassword(String basicPassword) {
+		this.basicPassword = basicPassword;
+	}
+
 	public RestConfiguration(MultivaluedHashMap<String, String> keycloakConfig) {
 		this.baseUrl = keycloakConfig.getFirst("baseURL");
 		logger.infov("Loaded baseURL from module properties: {0}", this.baseUrl);
@@ -73,6 +92,12 @@ public class RestConfiguration {
 
 		this.clientId = keycloakConfig.getFirst("clientId");
 		logger.infov("Loaded clientId from module properties: {0}", this.clientId);
+
+		this.basicUsername = keycloakConfig.getFirst("basicUsername");
+		logger.infov("Loaded basicUsername from module properties: {0}", this.basicUsername);
+
+		this.basicPassword = keycloakConfig.getFirst("basicPassword");
+		logger.infov("Loaded basicPassword from module properties: {0}", this.basicPassword);
 	}
 
 	@Override

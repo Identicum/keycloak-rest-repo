@@ -16,6 +16,7 @@ import org.keycloak.models.RealmModel;
 
 import javax.json.*;
 import java.io.IOException;
+import java.util.Base64;
 import java.util.Date;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +29,7 @@ public class RestHandler {
 
 	private final RestConfiguration configuration;
 
+	private String basicToken;
 	private String accessToken;
 	private String refreshToken;
 	private Date tokenExpiresAt;
@@ -153,8 +155,13 @@ public class RestHandler {
 	 * @return SimpleHttpResponse with status code and response body
 	 */
 	private SimpleHttpResponse executeSecuredCall(HttpRequestBase request) {
-		if(RestConfiguration.AUTH_OAUTH.equals( this.configuration.getAuthType() )) {
-			request.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + this.getAccessToken());
+		switch (this.configuration.getAuthType()) {
+			case RestConfiguration.AUTH_OAUTH:
+				request.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + this.getAccessToken());
+				break;
+			case RestConfiguration.AUTH_BASIC:
+				request.setHeader(HttpHeaders.AUTHORIZATION, "Basic " + this.getBasicAuthenticationToken());
+				break;
 		}
 		return this.executeCall(request);
 	}
@@ -186,6 +193,14 @@ public class RestHandler {
 		finally {
 			this.closeQuietly(response);
 		}
+	}
+
+	private String getBasicAuthenticationToken() {
+		if(this.basicToken == null) {
+			this.basicToken = this.configuration.getBasicUsername() + ":" + this.configuration.getBasicPassword();
+			this.basicToken = Base64.getEncoder().encodeToString( this.basicToken.getBytes() );
+		}
+		return this.basicToken;
 	}
 
 	private String getAccessToken() {

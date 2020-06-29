@@ -11,6 +11,7 @@ import org.jboss.logging.Logger;
 import org.keycloak.Config;
 import org.keycloak.component.ComponentModel;
 import org.keycloak.component.ComponentValidationException;
+import org.keycloak.models.ClientModel;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 import org.keycloak.provider.ProviderConfigProperty;
@@ -36,14 +37,24 @@ public class KeycloakRestRepoProviderFactory implements UserStorageProviderFacto
 				.add();
 		builder.property().name("authType")
 				.type(ProviderConfigProperty.LIST_TYPE).label("Api Authorization")
-				.options(RestConfiguration.AUTH_NONE, RestConfiguration.AUTH_OAUTH)
+				.options(RestConfiguration.AUTH_NONE, RestConfiguration.AUTH_BASIC, RestConfiguration.AUTH_OAUTH)
 				.defaultValue(RestConfiguration.AUTH_NONE)
 				.helpText("Authorization method used by consumed API")
 				.add();
 		builder.property().name("clientId")
-				.type(ProviderConfigProperty.STRING_TYPE).label("Client Id")
+				.type(ProviderConfigProperty.CLIENT_LIST_TYPE).label("OAuth2 Client Id")
 				.defaultValue("")
-				.helpText("Local client_id to negotiate the Access Token")
+				.helpText("Local client_id to negotiate the Access Token (required for OAUTH authorization)")
+				.add();
+		builder.property().name("basicUsername")
+				.type(ProviderConfigProperty.STRING_TYPE).label("Auth Basic Username")
+				.defaultValue("")
+				.helpText("Username used for Basic Authentication")
+				.add();
+		builder.property().name("basicPassword")
+				.type(ProviderConfigProperty.STRING_TYPE).label("Auth Basic Password")
+				.defaultValue("")
+				.helpText("Password used for Basic Authentication")
 				.add();
 		configMetadata = builder.build();
 	}
@@ -96,6 +107,30 @@ public class KeycloakRestRepoProviderFactory implements UserStorageProviderFacto
 		if(maxConnections == null || !maxConnections.matches("\\d*")) {
 			logger.warn("maxHttpConnections property is not valid. Enter a valid number");
 			throw new ComponentValidationException("Max pool connections should be a number");
+		}
+
+		if (config.getConfig().getFirst("authType").equals( RestConfiguration.AUTH_OAUTH)) {
+			logger.warn("Auth Type set to OAUTH2. Checking client id");
+			String clientId = config.getConfig().getFirst("clientId");
+			if( clientId == null || clientId.isEmpty()) {
+				throw new ComponentValidationException("The client_id field is required for OAuth2 authorization type");
+			}
+			ClientModel client = realm.getClientByClientId(clientId);
+			if( client == null) {
+				throw new ComponentValidationException("The client_id could not be found in this Realm");
+			}
+		}
+
+		if (config.getConfig().getFirst("authType").equals( RestConfiguration.AUTH_BASIC)) {
+			logger.warn("Auth Type set to Basic. Checking username and password");
+			String username = config.getConfig().getFirst("basicUsername");
+			if( username == null || username.isEmpty()) {
+				throw new ComponentValidationException("The username field is required for Basic Authentication type");
+			}
+			String password = config.getConfig().getFirst("basicPassword");
+			if( password == null || password.isEmpty()) {
+				throw new ComponentValidationException("The password field is required for Basic Authentication type");
+			}
 		}
 	 }
 }

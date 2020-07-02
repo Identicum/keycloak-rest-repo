@@ -225,21 +225,16 @@ public class RestHandler {
 	}
 
 	private void requestAccessToken() {
-		RealmModel realm = this.configuration.getContext().getRealm();
-		logger.infov("Using realm to request access token: {0}", realm);
-		logger.infov("Current client_id: {0}", this.configuration.getClientId());
-		ClientModel client = realm.getClientByClientId(this.configuration.getClientId());
-		String endpoint = String.format("%s/realms/%s/protocol/openid-connect/token", this.configuration.getContext().getAuthServerUrl(), realm.getName());
-
-		logger.infov("Requesting access_token to consume Rest User API: {0}", endpoint);
-		HttpPost httpPost = new HttpPost(endpoint);
+		logger.infov("Current client_id: {0}", this.configuration.getOauthClientId());
+		logger.infov("Requesting access_token to consume Rest User API: {0}", this.configuration.getOauthTokenEndpoint());
+		HttpPost httpPost = new HttpPost(this.configuration.getOauthTokenEndpoint());
 		httpPost.setHeader(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded");
 
 		List<NameValuePair> form = new ArrayList<>();
 		form.add(new BasicNameValuePair("grant_type", "client_credentials"));
-		form.add(new BasicNameValuePair("client_id", client.getClientId()));
-		form.add(new BasicNameValuePair("client_secret", client.getSecret()));
-		form.add(new BasicNameValuePair("scope", "profile"));
+		form.add(new BasicNameValuePair("client_id", this.configuration.getOauthClientId()));
+		form.add(new BasicNameValuePair("client_secret", this.configuration.getOauthClientSecret()));
+		form.add(new BasicNameValuePair("scope", this.configuration.getOauthScope()));
 		UrlEncodedFormEntity entity = new UrlEncodedFormEntity(form, Consts.UTF_8);
 		httpPost.setEntity(entity);
 
@@ -252,18 +247,14 @@ public class RestHandler {
 	}
 
 	private void refreshAccessToken() {
-		RealmModel realm = this.configuration.getContext().getRealm();
-		ClientModel client = realm.getClientByClientId(this.configuration.getClientId());
-		String endpoint = String.format("%s/realms/%s/protocol/openid-connect/token", this.configuration.getContext().getAuthServerUrl(), realm.getName());
-
-		logger.infov("Requesting access_token to consume Rest User API: {0}", endpoint);
-		HttpPost httpPost = new HttpPost(endpoint);
+		logger.infov("Refreshing access_token to consume Rest User API: {0}", this.configuration.getOauthTokenEndpoint());
+		HttpPost httpPost = new HttpPost(this.configuration.getOauthTokenEndpoint());
 		httpPost.setHeader(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded");
 
 		List<NameValuePair> form = new ArrayList<>();
 		form.add(new BasicNameValuePair("grant_type", "refresh_token"));
-		form.add(new BasicNameValuePair("client_id", client.getClientId()));
-		form.add(new BasicNameValuePair("client_secret", client.getSecret()));
+		form.add(new BasicNameValuePair("client_id", this.configuration.getOauthClientId()));
+		form.add(new BasicNameValuePair("client_secret", this.configuration.getOauthClientSecret()));
 		form.add(new BasicNameValuePair("refresh_token", this.refreshToken));
 		UrlEncodedFormEntity entity = new UrlEncodedFormEntity(form, Consts.UTF_8);
 		httpPost.setEntity(entity);

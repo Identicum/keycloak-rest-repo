@@ -1,0 +1,21 @@
+version: '3'
+
+services:
+  keycloak:
+    image: jboss/keycloak:15.0.2
+    restart: always
+    environment:
+      KEYCLOAK_USER: admin
+      KEYCLOAK_PASSWORD: admin
+      KEYCLOAK_IMPORT: /tmp/realm.json
+    volumes:
+      - ./realm.json:/tmp/realm.json
+      - ./target/keycloak-rest-repo.jar:/opt/jboss/keycloak/standalone/deployments/keycloak-rest-repo.jar
+      - ./startup-scripts/:/opt/jboss/startup-scripts/
+    ports:
+      - 8080:8080
+  rest-users-api:
+    image: identicum/rest-users-api
+    restart: always
+    ports:
+      - 8081:8081

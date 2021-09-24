@@ -22,51 +22,57 @@ public class KeycloakRestRepoProviderFactory implements UserStorageProviderFacto
 	static {
 		ProviderConfigurationBuilder builder = ProviderConfigurationBuilder.create();
 		builder.property().name(RestConfiguration.PROPERTY_BASE_URL)
-				.type(ProviderConfigProperty.STRING_TYPE).label("Base URL")
-				.defaultValue("http://localhost:8082/")
-				.helpText("Api url base to authenticate users")
-				.add();
+			.type(ProviderConfigProperty.STRING_TYPE).label("Base URL")
+			.defaultValue("http://rest-users-api:8081/")
+			.helpText("Api url base to authenticate users")
+			.add();
 		builder.property().name(RestConfiguration.PROPERTY_MAX_HTTP_CONNECTIONS)
-				.type(ProviderConfigProperty.STRING_TYPE).label("Max pool connections")
-				.defaultValue("5")
-				.helpText("Max http connections in pool")
-				.add();
+			.type(ProviderConfigProperty.STRING_TYPE).label("Max pool connections")
+			.defaultValue("5")
+			.helpText("Max http connections in pool")
+			.add();
 		builder.property().name(RestConfiguration.PROPERTY_AUTH_TYPE)
-				.type(ProviderConfigProperty.LIST_TYPE).label("Api Authorization")
-				.options(RestConfiguration.AUTH_NONE, RestConfiguration.AUTH_BASIC, RestConfiguration.AUTH_OAUTH)
-				.defaultValue(RestConfiguration.AUTH_NONE)
-				.helpText("Authorization method used by consumed API")
-				.add();
+			.type(ProviderConfigProperty.LIST_TYPE).label("Api Authorization")
+			.options(RestConfiguration.AUTH_NONE, RestConfiguration.AUTH_BASIC, RestConfiguration.AUTH_OAUTH)
+			.defaultValue(RestConfiguration.AUTH_NONE)
+			.helpText("Authorization method used by consumed API")
+			.add();
 		builder.property().name(RestConfiguration.PROPERTY_OAUTH_TOKEN_ENDPOINT)
-				.type(ProviderConfigProperty.STRING_TYPE).label("OAuth2 Token Endpoint")
-				.defaultValue("http://kyecloak-server/auth/realms/master/protocol/openid-connect/token")
-				.helpText("Endpoint to negotiate the token with client_credentials grant type (required for OAUTH authorization)")
-				.add();
+			.type(ProviderConfigProperty.STRING_TYPE).label("OAuth2 Token Endpoint")
+			.defaultValue("http://localhost:8080/auth/realms/master/protocol/openid-connect/token")
+			.helpText("Endpoint to negotiate the token with client_credentials grant type (required for OAUTH authorization)")
+			.add();
 		builder.property().name(RestConfiguration.PROPERTY_OAUTH_CLIENT_ID)
-				.type(ProviderConfigProperty.STRING_TYPE).label("OAuth2 Client Id")
-				.defaultValue("")
-				.helpText("client_id to negotiate the Access Token (required for OAUTH authorization)")
-				.add();
+			.type(ProviderConfigProperty.STRING_TYPE).label("OAuth2 Client Id")
+			.defaultValue("")
+			.helpText("client_id to negotiate the Access Token (required for OAUTH authorization)")
+			.add();
 		builder.property().name(RestConfiguration.PROPERTY_OAUTH_CLIENT_SECRET)
-				.type(ProviderConfigProperty.PASSWORD).label("OAuth2 Client Secret")
-				.defaultValue("")
-				.helpText("client_secret to negotiate the Access Token (required for OAUTH authorization)")
-				.add();
+			.type(ProviderConfigProperty.PASSWORD).label("OAuth2 Client Secret")
+			.defaultValue("")
+			.helpText("client_secret to negotiate the Access Token (required for OAUTH authorization)")
+			.add();
 		builder.property().name(RestConfiguration.PROPERTY_OAUTH_SCOPE)
-				.type(ProviderConfigProperty.STRING_TYPE).label("OAuth2 Scope")
-				.defaultValue("")
-				.helpText("Required scope in the access_token request")
-				.add();
+			.type(ProviderConfigProperty.STRING_TYPE).label("OAuth2 Scope")
+			.defaultValue("")
+			.helpText("Required scope in the access_token request")
+			.add();
 		builder.property().name(RestConfiguration.PROPERTY_BASIC_USERNAME)
-				.type(ProviderConfigProperty.STRING_TYPE).label("Auth Basic Username")
-				.defaultValue("")
-				.helpText("Username used for Basic Authentication")
-				.add();
+			.type(ProviderConfigProperty.STRING_TYPE).label("Auth Basic Username")
+			.defaultValue("")
+			.helpText("Username used for Basic Authentication")
+			.add();
 		builder.property().name(RestConfiguration.PROPERTY_BASIC_PASSWORD)
-				.type(ProviderConfigProperty.PASSWORD).label("Auth Basic Password")
-				.defaultValue("")
-				.helpText("Password used for Basic Authentication")
-				.add();
+			.type(ProviderConfigProperty.PASSWORD).label("Auth Basic Password")
+			.defaultValue("")
+			.helpText("Password used for Basic Authentication")
+			.add();
+		builder.property().name(RestConfiguration.PROPERTY_STATS_ENABLED)
+			.type(ProviderConfigProperty.LIST_TYPE).label("HTTP pool stats enabled")
+			.options(RestConfiguration.STATS_ENABLED_YES, RestConfiguration.STATS_ENABLED_NO)
+			.defaultValue(RestConfiguration.STATS_ENABLED_NO)
+			.helpText("Log HTTP pool stats in repo-provider initialization?")
+			.add();
 		configMetadata = builder.build();
 	}
 

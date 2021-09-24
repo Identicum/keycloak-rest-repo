@@ -1,5 +1,11 @@
 package com.identicum.keycloak;
 
+import java.util.Base64;
+import java.util.Date;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.HashMap;
+import java.util.stream.Stream;
 import org.apache.http.*;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.*;
@@ -8,6 +14,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.pool.PoolStats;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 import org.jboss.logging.Logger;
@@ -16,11 +23,7 @@ import org.keycloak.models.RealmModel;
 
 import javax.json.*;
 import java.io.IOException;
-import java.util.Base64;
-import java.util.Date;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Stream;
+
 
 public class RestHandler {
 
@@ -28,6 +31,7 @@ public class RestHandler {
 	protected CloseableHttpClient httpClient;
 
 	private final RestConfiguration configuration;
+	private PoolingHttpClientConnectionManager poolingHttpClientConnectionManager;
 
 	private String basicToken;
 	private String accessToken;
@@ -36,9 +40,9 @@ public class RestHandler {
 
 	public RestHandler(RestConfiguration configuration) {
 		logger.infov("Initializing HttpClient pool.");
-		PoolingHttpClientConnectionManager poolingConnManager = new PoolingHttpClientConnectionManager();
-		poolingConnManager.setDefaultMaxPerRoute(configuration.getMaxConnections());
-		this.httpClient = HttpClients.custom().setConnectionManager(poolingConnManager).build();
+		this.poolingHttpClientConnectionManager = new PoolingHttpClientConnectionManager();
+		this.poolingHttpClientConnectionManager.setDefaultMaxPerRoute(configuration.getMaxConnections());
+		this.httpClient = HttpClients.custom().setConnectionManager(this.poolingHttpClientConnectionManager).build();
 		this.configuration = configuration;
 	}
 
@@ -84,6 +88,22 @@ public class RestHandler {
 		httpPatch.setEntity(httpEntity);
 
 		this.stopOnError( this.executeSecuredCall(httpPatch) );
+	}
+
+	public Boolean displayStats() {
+		logger.tracev("getStatsEnabled(): {0}, STATS_ENABLED_YES: {1} ", this.configuration.getStatsEnabled(), this.configuration.STATS_ENABLED_YES);
+		return this.configuration.getStatsEnabled().equals(this.configuration.STATS_ENABLED_YES);
+	}
+
+	public HashMap getStats() {
+		HashMap<String, Integer> stats = new HashMap<>();
+		PoolStats poolStats = this.poolingHttpClientConnectionManager.getTotalStats();
+		stats.put("availableConnections", poolStats.getAvailable());
+		stats.put("maxConnections", poolStats.getMax());
+		stats.put("leasedConnections", poolStats.getLeased());
+		stats.put("pendingConnections", poolStats.getPending());
+		stats.put("defaultMaxPerRoute", this.poolingHttpClientConnectionManager.getDefaultMaxPerRoute());
+		return stats;
 	}
 
 	public JsonArray findUsers(String username) {

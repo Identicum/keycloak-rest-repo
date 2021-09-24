@@ -23,6 +23,10 @@ public class RestConfiguration {
 	public static final String PROPERTY_OAUTH_TOKEN_ENDPOINT = "oauthTokenEndpoint";
 	public static final String PROPERTY_BASIC_USERNAME = "basicUsername";
 	public static final String PROPERTY_BASIC_PASSWORD = "basicPassword";
+	public static final String PROPERTY_STATS_ENABLED = "statsEnabled";
+
+	public static final String STATS_ENABLED_YES = "Yes";
+	public static final String STATS_ENABLED_NO = "No";
 
 	private static final Logger logger = Logger.getLogger(RestConfiguration.class);
 
@@ -35,6 +39,7 @@ public class RestConfiguration {
 	private String oauthTokenEndpoint;
 	private String basicUsername;
 	private String basicPassword;
+	private String statsEnabled;
 
 	public String getBaseUrl() {
 		return baseUrl;
@@ -108,6 +113,14 @@ public class RestConfiguration {
 		this.basicPassword = basicPassword;
 	}
 
+	public String getStatsEnabled() {
+		return statsEnabled;
+	}
+
+	public void setStatsEnabled(String statsEnabled) {
+		this.statsEnabled = statsEnabled;
+	}
+
 	public RestConfiguration(MultivaluedHashMap<String, String> keycloakConfig) {
 		this.baseUrl = keycloakConfig.getFirst(PROPERTY_BASE_URL);
 		logger.infov("Loaded baseURL from module properties: {0}", this.baseUrl);
@@ -139,6 +152,9 @@ public class RestConfiguration {
 
 		this.basicPassword = keycloakConfig.getFirst(PROPERTY_BASIC_PASSWORD);
 		logger.infov("Loaded basicPassword from module properties: {0}", this.basicPassword);
+
+		this.statsEnabled = keycloakConfig.getFirst(PROPERTY_STATS_ENABLED);
+		logger.infov("Loaded statsEnabled from module properties: {0}", this.statsEnabled);
 	}
 
 	public static void validate(MultivaluedHashMap<String, String> config) {
@@ -196,8 +212,10 @@ public class RestConfiguration {
 		buffer.append("maxConnections: " + this.maxConnections + "; ");
 		buffer.append("authType: " + this.authType + "; ");
 		buffer.append("oauthClientId: " + this.oauthClientId + "; ");
+		buffer.append("oauthTokenEndpoint: " + this.oauthTokenEndpoint + "; ");
 		buffer.append("oauthScope: " + this.oauthScope + "; ");
 		buffer.append("basicUsername: " + this.basicUsername);
+		buffer.append("statsEnabled: " + this.statsEnabled);
 		return buffer.toString();
 	}
 }

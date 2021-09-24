@@ -1,10 +1,8 @@
 package com.identicum.keycloak;
 
-import java.util.*;
-
 import javax.json.JsonArray;
 import javax.json.JsonObject;
-
+import java.util.*;
 import org.jboss.logging.Logger;
 import org.keycloak.component.ComponentModel;
 import org.keycloak.credential.CredentialInput;
@@ -40,6 +38,9 @@ public class KeycloakRestRepoProvider implements CredentialInputValidator,
     	this.session = session;
     	this.model = model;
     	this.restHandler = restHandler;
+		if (restHandler.displayStats()){
+			logger.infov("HTTP pool stats: {0}", restHandler.getStats().toString());
+		}
     }
 	
 	@Override
@@ -57,7 +58,7 @@ public class KeycloakRestRepoProvider implements CredentialInputValidator,
 		StorageId storageId = new StorageId(id);
 		String userId = storageId.getExternalId();
 
-		logger.infov("Cache size is: {0}", loadedUsers.size());
+		logger.debugv("Cache size is: {0}", loadedUsers.size());
 		RestUserAdapter adapter = loadedUsers.get(userId);
 		if (adapter == null) {
 			JsonObject userJson = this.restHandler.findUserByUsername(userId);

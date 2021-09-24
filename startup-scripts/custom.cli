@@ -1,0 +1,7 @@
+embed-server --server-config=standalone-ha.xml --std-out=echo
+
+
+/subsystem=logging/logger=com.identicum.keycloak:add
+/subsystem=logging/logger=com.identicum.keycloak:write-attribute(name="level", value=DEBUG)
+
+stop-embedded-server

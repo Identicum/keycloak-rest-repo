@@ -39,10 +39,11 @@ public class RestHandler {
 	private Date tokenExpiresAt;
 
 	public RestHandler(RestConfiguration configuration) {
+		Integer maxConnections = configuration.getMaxConnections();
 		Integer socketTimeout = configuration.getApiSocketTimeout();
 		Integer connectTimeout = configuration.getApiConnectTimeout();
 		Integer connectionRequestTimeout = configuration.getApiConnectionRequestTimeout();
-		logger.infov("Initializing HttpClient pool.");
+		logger.infov("Initializing HTTP pool with maxConnections: {0}, connectionRequestTimeout: {1}, connectTimeout: {2}, socketTimeout: {3}", maxConnections, connectionRequestTimeout, connectTimeout, socketTimeout);
 		this.poolingHttpClientConnectionManager = new PoolingHttpClientConnectionManager();
 		this.poolingHttpClientConnectionManager.setDefaultMaxPerRoute(configuration.getMaxConnections());
 		this.poolingHttpClientConnectionManager.setDefaultSocketConfig(SocketConfig.custom()

@@ -39,7 +39,7 @@ public class KeycloakRestRepoProviderFactory implements UserStorageProviderFacto
 			.add();
 		builder.property().name(RestConfiguration.PROPERTY_OAUTH_TOKEN_ENDPOINT)
 			.type(ProviderConfigProperty.STRING_TYPE).label("OAuth2 Token Endpoint")
-			.defaultValue("http://localhost:8080/auth/realms/master/protocol/openid-connect/token")
+			.defaultValue("http://localhost:8080/auth/realms/restrepo/protocol/openid-connect/token")
 			.helpText("Endpoint to negotiate the token with client_credentials grant type (required for OAUTH authorization)")
 			.add();
 		builder.property().name(RestConfiguration.PROPERTY_OAUTH_CLIENT_ID)

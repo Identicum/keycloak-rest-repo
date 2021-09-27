@@ -25,6 +25,10 @@ public class RestConfiguration {
 	public static final String PROPERTY_BASIC_PASSWORD = "basicPassword";
 	public static final String PROPERTY_STATS_ENABLED = "statsEnabled";
 
+	public static final String API_SOCKET_TIMEOUT = "apiSocketTimeout";
+	public static final String API_CONNECT_TIMEOUT = "apiConnectTimeout";
+	public static final String API_CONNECTION_REQUEST_TIMEOUT = "apiConnectionRequestTimeout";
+
 	public static final String STATS_ENABLED_YES = "Yes";
 	public static final String STATS_ENABLED_NO = "No";
 
@@ -40,6 +44,9 @@ public class RestConfiguration {
 	private String basicUsername;
 	private String basicPassword;
 	private String statsEnabled;
+	private Integer apiSocketTimeout;
+	private Integer apiConnectTimeout;
+	private Integer apiConnectionRequestTimeout;
 
 	public String getBaseUrl() {
 		return baseUrl;
@@ -121,6 +128,30 @@ public class RestConfiguration {
 		this.statsEnabled = statsEnabled;
 	}
 
+	public Integer getApiSocketTimeout() {
+		return apiSocketTimeout;
+	}
+
+	public void setApiSocketTimeout(Integer apiSocketTimeout) {
+		this.apiSocketTimeout = apiSocketTimeout;
+	}
+
+	public Integer getApiConnectTimeout() {
+		return apiConnectTimeout;
+	}
+
+	public void setApiConnectTimeout(Integer apiConnectTimeout) {
+		this.apiConnectTimeout = apiConnectTimeout;
+	}
+
+	public Integer getApiConnectionRequestTimeout() {
+		return apiConnectionRequestTimeout;
+	}
+
+	public void setApiConnectionRequestTimeout(Integer apiConnectionRequestTimeout) {
+		this.apiConnectionRequestTimeout = apiConnectionRequestTimeout;
+	}
+
 	public RestConfiguration(MultivaluedHashMap<String, String> keycloakConfig) {
 		this.baseUrl = keycloakConfig.getFirst(PROPERTY_BASE_URL);
 		logger.infov("Loaded baseURL from module properties: {0}", this.baseUrl);
@@ -155,6 +186,15 @@ public class RestConfiguration {
 
 		this.statsEnabled = keycloakConfig.getFirst(PROPERTY_STATS_ENABLED);
 		logger.infov("Loaded statsEnabled from module properties: {0}", this.statsEnabled);
+
+		this.apiSocketTimeout = Integer.parseInt(keycloakConfig.getFirst(API_SOCKET_TIMEOUT));
+		logger.infov("Loaded apiSocketTimeout from module properties: {0}", apiSocketTimeout);
+
+		this.apiConnectTimeout = Integer.parseInt(keycloakConfig.getFirst(API_CONNECT_TIMEOUT));
+		logger.infov("Loaded apiConnectTimeout from module properties: {0}", apiConnectTimeout);
+
+		this.apiConnectionRequestTimeout = Integer.parseInt(keycloakConfig.getFirst(API_CONNECTION_REQUEST_TIMEOUT));
+		logger.infov("Loaded apiConnectionRequestTimeout from module properties: {0}", apiConnectionRequestTimeout);
 	}
 
 	public static void validate(MultivaluedHashMap<String, String> config) {
@@ -215,7 +255,11 @@ public class RestConfiguration {
 		buffer.append("oauthTokenEndpoint: " + this.oauthTokenEndpoint + "; ");
 		buffer.append("oauthScope: " + this.oauthScope + "; ");
 		buffer.append("basicUsername: " + this.basicUsername + "; ");
-		buffer.append("statsEnabled: " + this.statsEnabled);
+		buffer.append("statsEnabled: " + this.statsEnabled + "; ");
+		buffer.append("apiSocketTimeout: " + this.apiSocketTimeout + "; ");
+		buffer.append("apiConnectTimeout: " + this.apiConnectTimeout + "; ");
+		buffer.append("apiConnectionRequestTimeout: " + this.statsEnabled);
+
 		return buffer.toString();
 	}
 }

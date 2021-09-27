@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 import org.apache.http.*;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.*;
 import org.apache.http.entity.ByteArrayEntity;
@@ -38,9 +39,21 @@ public class RestHandler {
 	private Date tokenExpiresAt;
 
 	public RestHandler(RestConfiguration configuration) {
+		Integer socketTimeout = configuration.getApiSocketTimeout();
+		Integer connectTimeout = configuration.getApiConnectTimeout();
+		Integer connectionRequestTimeout = configuration.getApiConnectionRequestTimeout();
 		logger.infov("Initializing HttpClient pool.");
 		this.poolingHttpClientConnectionManager = new PoolingHttpClientConnectionManager();
 		this.poolingHttpClientConnectionManager.setDefaultMaxPerRoute(configuration.getMaxConnections());
+		this.poolingHttpClientConnectionManager.setDefaultSocketConfig(SocketConfig.custom()
+			.setSoTimeout(socketTimeout)
+			.build());
+		RequestConfig requestConfig = RequestConfig.custom()
+			.setConnectTimeout(connectTimeout)
+			.setConnectionRequestTimeout(connectionRequestTimeout)
+			.build();
+
+
 		this.httpClient = HttpClients.custom().setConnectionManager(this.poolingHttpClientConnectionManager).build();
 		this.configuration = configuration;
 	}

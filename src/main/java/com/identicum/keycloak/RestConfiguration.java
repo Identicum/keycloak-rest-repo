@@ -1,12 +1,11 @@
 package com.identicum.keycloak;
 
-import org.jboss.logging.Logger;
-import org.keycloak.common.util.MultivaluedHashMap;
-import org.keycloak.component.ComponentValidationException;
-
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import org.jboss.logging.Logger;
+import org.keycloak.common.util.MultivaluedHashMap;
+import org.keycloak.component.ComponentValidationException;
 
 public class RestConfiguration {
 

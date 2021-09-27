@@ -1,20 +1,14 @@
 package com.identicum.keycloak;
 
+import java.util.List;
+import java.util.Random;
 import javax.json.JsonObject;
-
 import org.jboss.logging.Logger;
 import org.keycloak.component.ComponentModel;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 import org.keycloak.storage.StorageId;
-import org.keycloak.storage.adapter.AbstractUserAdapter;
 import org.keycloak.storage.adapter.AbstractUserAdapterFederatedStorage;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class RestUserAdapter extends AbstractUserAdapterFederatedStorage {
 

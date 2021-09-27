@@ -73,6 +73,18 @@ public class KeycloakRestRepoProviderFactory implements UserStorageProviderFacto
 			.defaultValue(RestConfiguration.STATS_ENABLED_NO)
 			.helpText("Log HTTP pool stats in repo-provider initialization?")
 			.add();
+		builder.property().name(RestConfiguration.API_SOCKET_TIMEOUT)
+			.type(ProviderConfigProperty.STRING_TYPE).label("API Socket Timeout")
+			.defaultValue("1000")
+			.add();
+		builder.property().name(RestConfiguration.API_CONNECT_TIMEOUT)
+			.type(ProviderConfigProperty.STRING_TYPE).label("API Connect Timeout")
+			.defaultValue("1000")
+			.add();
+		builder.property().name(RestConfiguration.API_CONNECTION_REQUEST_TIMEOUT)
+			.type(ProviderConfigProperty.STRING_TYPE).label("API Connection Request Timeout")
+			.defaultValue("1000")
+			.add();
 		configMetadata = builder.build();
 	}
 

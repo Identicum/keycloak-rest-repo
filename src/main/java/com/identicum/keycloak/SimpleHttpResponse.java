@@ -1,10 +1,10 @@
 package com.identicum.keycloak;
 
-import org.apache.http.util.EntityUtils;
-import org.jboss.logging.Logger;
-
-import javax.json.*;
 import java.io.StringReader;
+import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonObject;
+import javax.json.JsonReader;
 
 public class SimpleHttpResponse {
 

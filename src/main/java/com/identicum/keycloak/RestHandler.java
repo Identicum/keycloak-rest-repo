@@ -1,5 +1,7 @@
 package com.identicum.keycloak;
 
+import java.io.IOException;
+import java.net.SocketTimeoutException;
 import java.util.Base64;
 import java.util.Date;
 import java.util.ArrayList;
@@ -7,9 +9,25 @@ import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
-import org.apache.http.*;
+import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
+import org.apache.http.Consts;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpHeaders;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.config.SocketConfig;
+import org.apache.http.conn.ConnectTimeoutException;
+import org.apache.http.conn.ConnectionPoolTimeoutException;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.*;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpDelete;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPatch;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -19,10 +37,6 @@ import org.apache.http.pool.PoolStats;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 import org.jboss.logging.Logger;
-
-import javax.json.*;
-import java.io.IOException;
-
 
 public class RestHandler {
 
@@ -38,10 +52,24 @@ public class RestHandler {
 	private Date tokenExpiresAt;
 
 	public RestHandler(RestConfiguration configuration) {
-		logger.infov("Initializing HttpClient pool.");
+		Integer maxConnections = configuration.getMaxConnections();
+		Integer socketTimeout = configuration.getApiSocketTimeout();
+		Integer connectTimeout = configuration.getApiConnectTimeout();
+		Integer connectionRequestTimeout = configuration.getApiConnectionRequestTimeout();
+		logger.infov("Initializing HTTP pool with maxConnections: {0}, connectionRequestTimeout: {1}, connectTimeout: {2}, socketTimeout: {3}", maxConnections, connectionRequestTimeout, connectTimeout, socketTimeout);
 		this.poolingHttpClientConnectionManager = new PoolingHttpClientConnectionManager();
-		this.poolingHttpClientConnectionManager.setDefaultMaxPerRoute(configuration.getMaxConnections());
-		this.httpClient = HttpClients.custom().setConnectionManager(this.poolingHttpClientConnectionManager).build();
+		this.poolingHttpClientConnectionManager.setDefaultMaxPerRoute(maxConnections);
+		this.poolingHttpClientConnectionManager.setDefaultSocketConfig(SocketConfig.custom()
+			.setSoTimeout(socketTimeout)
+			.build());
+		RequestConfig requestConfig = RequestConfig.custom()
+			.setConnectTimeout(connectTimeout)
+			.setConnectionRequestTimeout(connectionRequestTimeout)
+			.build();
+		this.httpClient = HttpClients.custom()
+			.setDefaultRequestConfig(requestConfig)
+			.setConnectionManager(this.poolingHttpClientConnectionManager)
+			.build();
 		this.configuration = configuration;
 	}
 
@@ -206,8 +234,21 @@ public class RestHandler {
 			logger.debugv("Response body obtained from server: {0}", responseString);
 			return new SimpleHttpResponse(response.getStatusLine().getStatusCode(), responseString);
 		}
+		catch(ConnectionPoolTimeoutException cpte) {
+			logger.errorv("Connection pool timeout exception: {0}", cpte);
+			throw new RuntimeException("Connection pool timeout exception.", cpte);
+		}
+		catch(ConnectTimeoutException cte) {
+			logger.errorv("Connect timeout exception: {0}", cte);
+			throw new RuntimeException("Connect timeout exception.", cte);
+		}
+		catch(SocketTimeoutException ste) {
+			logger.errorv("Socket timeout exception: {0}", ste);
+			throw new RuntimeException("Socket timeout exception.", ste);
+		}
 		catch(IOException io) {
-			throw new RuntimeException("Error executing request", io);
+			logger.errorv("Error executing request: {0}", io);
+			throw new RuntimeException("Error executing request.", io);
 		}
 		finally {
 			this.closeQuietly(response);

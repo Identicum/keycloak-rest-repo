@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Stream;
 import org.apache.http.*;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -18,8 +19,6 @@ import org.apache.http.pool.PoolStats;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 import org.jboss.logging.Logger;
-import org.keycloak.models.ClientModel;
-import org.keycloak.models.RealmModel;
 
 import javax.json.*;
 import java.io.IOException;
@@ -95,7 +94,7 @@ public class RestHandler {
 		return this.configuration.getStatsEnabled().equals(this.configuration.STATS_ENABLED_YES);
 	}
 
-	public HashMap getStats() {
+	public Map getStats() {
 		HashMap<String, Integer> stats = new HashMap<>();
 		PoolStats poolStats = this.poolingHttpClientConnectionManager.getTotalStats();
 		stats.put("availableConnections", poolStats.getAvailable());

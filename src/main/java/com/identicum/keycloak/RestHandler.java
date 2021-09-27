@@ -58,6 +58,7 @@ public class RestHandler {
 		Integer connectionRequestTimeout = configuration.getApiConnectionRequestTimeout();
 		logger.infov("Initializing HTTP pool with maxConnections: {0}, connectionRequestTimeout: {1}, connectTimeout: {2}, socketTimeout: {3}", maxConnections, connectionRequestTimeout, connectTimeout, socketTimeout);
 		this.poolingHttpClientConnectionManager = new PoolingHttpClientConnectionManager();
+		this.poolingHttpClientConnectionManager.setMaxTotal(maxConnections);
 		this.poolingHttpClientConnectionManager.setDefaultMaxPerRoute(maxConnections);
 		this.poolingHttpClientConnectionManager.setDefaultSocketConfig(SocketConfig.custom()
 			.setSoTimeout(socketTimeout)

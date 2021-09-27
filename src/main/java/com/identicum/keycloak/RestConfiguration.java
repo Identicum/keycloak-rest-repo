@@ -214,7 +214,7 @@ public class RestConfiguration {
 		buffer.append("oauthClientId: " + this.oauthClientId + "; ");
 		buffer.append("oauthTokenEndpoint: " + this.oauthTokenEndpoint + "; ");
 		buffer.append("oauthScope: " + this.oauthScope + "; ");
-		buffer.append("basicUsername: " + this.basicUsername);
+		buffer.append("basicUsername: " + this.basicUsername + "; ");
 		buffer.append("statsEnabled: " + this.statsEnabled);
 		return buffer.toString();
 	}

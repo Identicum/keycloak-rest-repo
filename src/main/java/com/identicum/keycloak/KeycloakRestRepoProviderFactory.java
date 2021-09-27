@@ -75,7 +75,7 @@ public class KeycloakRestRepoProviderFactory implements UserStorageProviderFacto
 			.add();
 		builder.property().name(RestConfiguration.API_SOCKET_TIMEOUT)
 			.type(ProviderConfigProperty.STRING_TYPE).label("API Socket Timeout")
-			.defaultValue("4500")
+			.defaultValue("1000")
 			.add();
 		builder.property().name(RestConfiguration.API_CONNECT_TIMEOUT)
 			.type(ProviderConfigProperty.STRING_TYPE).label("API Connect Timeout")

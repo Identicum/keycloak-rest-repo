@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.stream.Stream;
 import org.apache.http.*;
 import org.apache.http.client.config.RequestConfig;
+import org.apache.http.config.SocketConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.*;
 import org.apache.http.entity.ByteArrayEntity;

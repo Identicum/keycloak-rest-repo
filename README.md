@@ -1,24 +1,44 @@
 # keycloak-rest-repo
 
-Plugin para consumo de identidades en Keycloak mediante API Rest
+Keycloak repo provider SPI to consume REST API.
+Integrated with [Identicum rest-users-api](https://github.com/Identicum/rest-users-api)
 
-## Instalación
+All user management functions are implemented:
+- List all users
+- Search by username
+- Create user
+- Modiffy user
+- Modify password
+- Lock/unlock user
+- Delete user
 
-1. Empaquetado del jar: `mvn package`
-2. Copiado del jar a la carpeta *$KEYCLOAK_HOME/standalone/deployments*
-3. Configuración del módulo en Keycloak
-    1. Ingresar a la consola como Admin
-    2. Ir al menú de User Federation
-    3. Agregar el provider
-    4. Configurar el nombre y el baseURL (requerido)
+## Compile module
+```sh
+mvn clean install
+```
 
-En el ejemplo se encuentra integrado con la rest-users-api (https://github.com/Identicum/rest-users-api)
+## Run project
+```sh
+docker-compose up
+```
 
-Implementadas todas las funciones de gestión de usuarios:
-- Listar todos los usuarios
-- Buscar por nombre
-- Alta de usuario
-- Modificación de usuario
-- Modificación de contraseña
-- Bloqueo de usuario
-- Eliminación de usuario
+## Test
+- Navigate to http://localhost:8080/auth/realms/restrepo/account
+- Select `Sign In`
+- Register a new user
+- Sign Out
+- Sign In again, as the newly registered user
+
+## How it works
+<TODO>
+
+## Realm configuration
+A realm is automatically imported to simplify testing. This realm has the following configuration:
+<TODO>
+
+## Troubleshooting
+- Keycloak log should detail module activity, configured in ./startup-scripts/custom.cli
+
+- Login to the admin console at http://localhost:8080/auth/admin/
+  - username: admin
+  - password: admin

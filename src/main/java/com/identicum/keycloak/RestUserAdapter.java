@@ -1,18 +1,22 @@
 package com.identicum.keycloak;
 
-import java.util.List;
-import java.util.Random;
-import javax.json.JsonObject;
 import org.jboss.logging.Logger;
 import org.keycloak.component.ComponentModel;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
-import org.keycloak.storage.StorageId;
 import org.keycloak.storage.adapter.AbstractUserAdapterFederatedStorage;
+
+import javax.json.JsonObject;
+import java.util.List;
+import java.util.Random;
+
+import static java.lang.String.valueOf;
+import static org.jboss.logging.Logger.getLogger;
+import static org.keycloak.storage.StorageId.keycloakId;
 
 public class RestUserAdapter extends AbstractUserAdapterFederatedStorage {
 
-	private static final Logger logger = Logger.getLogger(RestUserAdapter.class);
+	private static final Logger logger = getLogger(RestUserAdapter.class);
 
 	RestHandler handler;
 	JsonObject user;
@@ -21,7 +25,7 @@ public class RestUserAdapter extends AbstractUserAdapterFederatedStorage {
 	public RestUserAdapter(KeycloakSession session, RealmModel realm, ComponentModel model, JsonObject user) {
 		super(session, realm, model);
 		this.user = user;
-		this.keycloakId = StorageId.keycloakId(model, String.valueOf(user.getInt("id")));
+		this.keycloakId = keycloakId(model, valueOf(user.getInt("id")));
 	}
 
 	public void setHandler(RestHandler handler) {
@@ -30,9 +34,9 @@ public class RestUserAdapter extends AbstractUserAdapterFederatedStorage {
 
 	@Override
 	public String getId() {
-		return this.keycloakId;
+		return keycloakId;
 	}
-	
+
 	@Override
 	public String getUsername() {
 		return user.getString("username");
@@ -55,22 +59,22 @@ public class RestUserAdapter extends AbstractUserAdapterFederatedStorage {
 
 	@Override
 	public void setEnabled(boolean enabled) {
-		this.handler.setUserAttribute(this.getUsername(), "active", String.valueOf(enabled));
+		handler.setUserAttribute(getUsername(), "active", valueOf(enabled));
 	}
 
 	@Override
 	public void setFirstName(String firstName) {
-		this.handler.setUserAttribute(this.getUsername(), "firstName", firstName);
+		handler.setUserAttribute(getUsername(), "firstName", firstName);
 	}
 
 	@Override
 	public void setLastName(String lastName) {
-		this.handler.setUserAttribute(this.getUsername(), "lastName", lastName);
+		handler.setUserAttribute(getUsername(), "lastName", lastName);
 	}
 
 	@Override
 	public void setEmail(String email) {
-		this.handler.setUserAttribute(this.getUsername(), "email", email);
+		handler.setUserAttribute(getUsername(), "email", email);
 	}
 
 	@Override

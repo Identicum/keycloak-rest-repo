@@ -1,12 +1,17 @@
 package com.identicum.keycloak;
 
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import lombok.Getter;
 import org.jboss.logging.Logger;
 import org.keycloak.common.util.MultivaluedHashMap;
 import org.keycloak.component.ComponentValidationException;
 
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
+import static java.lang.Integer.parseInt;
+
+@Getter
 public class RestConfiguration {
 
 	public static final String AUTH_NONE = "NONE";
@@ -47,152 +52,48 @@ public class RestConfiguration {
 	private Integer apiConnectTimeout;
 	private Integer apiConnectionRequestTimeout;
 
-	public String getBaseUrl() {
-		return baseUrl;
-	}
-
-	public void setBaseUrl(String baseUrl) {
-		this.baseUrl = baseUrl;
-	}
-
-	public Integer getMaxConnections() {
-		return maxConnections;
-	}
-
-	public void setMaxConnections(Integer maxConnections) {
-		this.maxConnections = maxConnections;
-	}
-
-	public String getOauthClientId() {
-		return oauthClientId;
-	}
-
-	public void setOauthClientId(String oauthClientId) {
-		this.oauthClientId = oauthClientId;
-	}
-
-	public String getOauthScope() {
-		return oauthScope;
-	}
-
-	public void setOauthScope(String oauthScope) {
-		this.oauthScope = oauthScope;
-	}
-
-	public String getOauthClientSecret() {
-		return oauthClientSecret;
-	}
-
-	public void setOauthClientSecret(String oauthClientSecret) {
-		this.oauthClientSecret = oauthClientSecret;
-	}
-
-	public String getOauthTokenEndpoint() {
-		return oauthTokenEndpoint;
-	}
-
-	public void setOauthTokenEndpoint(String oauthTokenEndpoint) {
-		this.oauthTokenEndpoint = oauthTokenEndpoint;
-	}
-
-	public String getAuthType() {
-		return authType;
-	}
-
-	public void setAuthType(String authType) {
-		this.authType = authType;
-	}
-
-	public String getBasicUsername() {
-		return basicUsername;
-	}
-
-	public void setBasicUsername(String basicUsername) {
-		this.basicUsername = basicUsername;
-	}
-
-	public String getBasicPassword() {
-		return basicPassword;
-	}
-
-	public void setBasicPassword(String basicPassword) {
-		this.basicPassword = basicPassword;
-	}
-
-	public String getStatsEnabled() {
-		return statsEnabled;
-	}
-
-	public void setStatsEnabled(String statsEnabled) {
-		this.statsEnabled = statsEnabled;
-	}
-
-	public Integer getApiSocketTimeout() {
-		return apiSocketTimeout;
-	}
-
-	public void setApiSocketTimeout(Integer apiSocketTimeout) {
-		this.apiSocketTimeout = apiSocketTimeout;
-	}
-
-	public Integer getApiConnectTimeout() {
-		return apiConnectTimeout;
-	}
-
-	public void setApiConnectTimeout(Integer apiConnectTimeout) {
-		this.apiConnectTimeout = apiConnectTimeout;
-	}
-
-	public Integer getApiConnectionRequestTimeout() {
-		return apiConnectionRequestTimeout;
-	}
-
-	public void setApiConnectionRequestTimeout(Integer apiConnectionRequestTimeout) {
-		this.apiConnectionRequestTimeout = apiConnectionRequestTimeout;
-	}
-
 	public RestConfiguration(MultivaluedHashMap<String, String> keycloakConfig) {
 		this.baseUrl = keycloakConfig.getFirst(PROPERTY_BASE_URL);
-		logger.infov("Loaded baseURL from module properties: {0}", this.baseUrl);
-		if(this.baseUrl.endsWith("/")) {
-			this.baseUrl = this.baseUrl.substring(0, this.baseUrl.length()-1);
-			logger.infov("Removing trailing slash from URL: {0}", this.baseUrl);
+		logger.infov("Loaded baseURL from module properties: {0}", baseUrl);
+		if(baseUrl.endsWith("/")) {
+			this.baseUrl = baseUrl.substring(0, baseUrl.length()-1);
+			logger.infov("Removing trailing slash from URL: {0}", baseUrl);
 		}
 
-		this.maxConnections = Integer.parseInt(keycloakConfig.getFirst(PROPERTY_MAX_HTTP_CONNECTIONS));
+		this.maxConnections = parseInt(keycloakConfig.getFirst(PROPERTY_MAX_HTTP_CONNECTIONS));
 		logger.infov("Loaded maxHttpConnections from module properties: {0}", maxConnections);
 
 		this.authType = keycloakConfig.getFirst(PROPERTY_AUTH_TYPE);
-		logger.infov("Loaded authType from module properties: {0}", this.authType);
+		logger.infov("Loaded authType from module properties: {0}", authType);
 
 		this.oauthClientId = keycloakConfig.getFirst(PROPERTY_OAUTH_CLIENT_ID);
-		logger.infov("Loaded oauthClientId from module properties: {0}", this.oauthClientId);
+		logger.infov("Loaded oauthClientId from module properties: {0}", oauthClientId);
 
 		this.oauthClientSecret = keycloakConfig.getFirst(PROPERTY_OAUTH_CLIENT_SECRET);
-		logger.infov("Loaded oauthClientId from module properties: {0}", this.oauthClientSecret);
+		logger.infov("Loaded oauthClientId from module properties: {0}", oauthClientSecret);
 
 		this.oauthTokenEndpoint = keycloakConfig.getFirst(PROPERTY_OAUTH_TOKEN_ENDPOINT);
-		logger.infov("Loaded oauthClientId from module properties: {0}", this.oauthTokenEndpoint);
+		logger.infov("Loaded oauthClientId from module properties: {0}", oauthTokenEndpoint);
 
 		this.oauthScope = keycloakConfig.getFirst(PROPERTY_OAUTH_SCOPE);
-		logger.infov("Loaded oauthScope from module properties: {0}", this.oauthScope);
+		logger.infov("Loaded oauthScope from module properties: {0}", oauthScope);
 
 		this.basicUsername = keycloakConfig.getFirst(PROPERTY_BASIC_USERNAME);
-		logger.infov("Loaded basicUsername from module properties: {0}", this.basicUsername);
+		logger.infov("Loaded basicUsername from module properties: {0}", basicUsername);
 
 		this.basicPassword = keycloakConfig.getFirst(PROPERTY_BASIC_PASSWORD);
-		logger.infov("Loaded basicPassword from module properties: {0}", this.basicPassword);
+		logger.infov("Loaded basicPassword from module properties: {0}", basicPassword);
 
 		this.statsEnabled = keycloakConfig.getFirst(PROPERTY_STATS_ENABLED);
-		logger.infov("Loaded statsEnabled from module properties: {0}", this.statsEnabled);
+		logger.infov("Loaded statsEnabled from module properties: {0}", statsEnabled);
 
-		this.apiSocketTimeout = Integer.parseInt(keycloakConfig.getFirst(API_SOCKET_TIMEOUT));
+		this.apiSocketTimeout = parseInt(keycloakConfig.getFirst(API_SOCKET_TIMEOUT));
 		logger.infov("Loaded apiSocketTimeout from module properties: {0}", apiSocketTimeout);
 
-		this.apiConnectTimeout = Integer.parseInt(keycloakConfig.getFirst(API_CONNECT_TIMEOUT));
+		this.apiConnectTimeout = parseInt(keycloakConfig.getFirst(API_CONNECT_TIMEOUT));
 		logger.infov("Loaded apiConnectTimeout from module properties: {0}", apiConnectTimeout);
 
-		this.apiConnectionRequestTimeout = Integer.parseInt(keycloakConfig.getFirst(API_CONNECTION_REQUEST_TIMEOUT));
+		this.apiConnectionRequestTimeout = parseInt(keycloakConfig.getFirst(API_CONNECTION_REQUEST_TIMEOUT));
 		logger.infov("Loaded apiConnectionRequestTimeout from module properties: {0}", apiConnectionRequestTimeout);
 	}
 
@@ -200,8 +101,7 @@ public class RestConfiguration {
 		String baseURL = config.getFirst(PROPERTY_BASE_URL);
 		if (baseURL == null) throw new ComponentValidationException("BaseURL is not specified");
 		try {
-			URL url = new URL(baseURL);
-			HttpURLConnection urlConn = (HttpURLConnection) url.openConnection();
+			HttpURLConnection urlConn = (HttpURLConnection) new URL(baseURL).openConnection();
 			urlConn.connect();
 			urlConn.disconnect();
 		} catch (IOException e) {
@@ -221,8 +121,7 @@ public class RestConfiguration {
 			checkPropertyNotEmpty(config, PROPERTY_OAUTH_SCOPE);
 			checkPropertyNotEmpty(config, PROPERTY_OAUTH_TOKEN_ENDPOINT);
 			try {
-				URL url = new URL(config.getFirst(PROPERTY_OAUTH_TOKEN_ENDPOINT));
-				HttpURLConnection urlConn = (HttpURLConnection) url.openConnection();
+				HttpURLConnection urlConn = (HttpURLConnection) new URL(config.getFirst(PROPERTY_OAUTH_TOKEN_ENDPOINT)).openConnection();
 				urlConn.connect();
 				urlConn.disconnect();
 			} catch (IOException e) {
@@ -247,17 +146,17 @@ public class RestConfiguration {
 	@Override
 	public String toString() {
 		StringBuffer buffer = new StringBuffer();
-		buffer.append("baseUrl: " + this.baseUrl + "; ");
-		buffer.append("maxConnections: " + this.maxConnections + "; ");
-		buffer.append("authType: " + this.authType + "; ");
-		buffer.append("oauthClientId: " + this.oauthClientId + "; ");
-		buffer.append("oauthTokenEndpoint: " + this.oauthTokenEndpoint + "; ");
-		buffer.append("oauthScope: " + this.oauthScope + "; ");
-		buffer.append("basicUsername: " + this.basicUsername + "; ");
-		buffer.append("statsEnabled: " + this.statsEnabled + "; ");
-		buffer.append("apiSocketTimeout: " + this.apiSocketTimeout + "; ");
-		buffer.append("apiConnectTimeout: " + this.apiConnectTimeout + "; ");
-		buffer.append("apiConnectionRequestTimeout: " + this.statsEnabled);
+		buffer.append("baseUrl: " + baseUrl + "; ");
+		buffer.append("maxConnections: " + maxConnections + "; ");
+		buffer.append("authType: " + authType + "; ");
+		buffer.append("oauthClientId: " + oauthClientId + "; ");
+		buffer.append("oauthTokenEndpoint: " + oauthTokenEndpoint + "; ");
+		buffer.append("oauthScope: " + oauthScope + "; ");
+		buffer.append("basicUsername: " + basicUsername + "; ");
+		buffer.append("statsEnabled: " + statsEnabled + "; ");
+		buffer.append("apiSocketTimeout: " + apiSocketTimeout + "; ");
+		buffer.append("apiConnectTimeout: " + apiConnectTimeout + "; ");
+		buffer.append("apiConnectionRequestTimeout: " + statsEnabled);
 
 		return buffer.toString();
 	}

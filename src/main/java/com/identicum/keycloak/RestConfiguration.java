@@ -27,14 +27,11 @@ public class RestConfiguration {
 	public static final String PROPERTY_OAUTH_TOKEN_ENDPOINT = "oauthTokenEndpoint";
 	public static final String PROPERTY_BASIC_USERNAME = "basicUsername";
 	public static final String PROPERTY_BASIC_PASSWORD = "basicPassword";
-	public static final String PROPERTY_STATS_ENABLED = "statsEnabled";
 
 	public static final String API_SOCKET_TIMEOUT = "apiSocketTimeout";
 	public static final String API_CONNECT_TIMEOUT = "apiConnectTimeout";
 	public static final String API_CONNECTION_REQUEST_TIMEOUT = "apiConnectionRequestTimeout";
-
-	public static final String STATS_ENABLED_YES = "Yes";
-	public static final String STATS_ENABLED_NO = "No";
+	public static final String HTTP_STATS_INTERVAL = "httpStatsInterval";
 
 	private static final Logger logger = Logger.getLogger(RestConfiguration.class);
 
@@ -47,10 +44,10 @@ public class RestConfiguration {
 	private String oauthTokenEndpoint;
 	private String basicUsername;
 	private String basicPassword;
-	private String statsEnabled;
 	private Integer apiSocketTimeout;
 	private Integer apiConnectTimeout;
 	private Integer apiConnectionRequestTimeout;
+	private Integer httpStatsInterval;
 
 	public RestConfiguration(MultivaluedHashMap<String, String> keycloakConfig) {
 		this.baseUrl = keycloakConfig.getFirst(PROPERTY_BASE_URL);
@@ -84,9 +81,6 @@ public class RestConfiguration {
 		this.basicPassword = keycloakConfig.getFirst(PROPERTY_BASIC_PASSWORD);
 		logger.infov("Loaded basicPassword from module properties: {0}", basicPassword);
 
-		this.statsEnabled = keycloakConfig.getFirst(PROPERTY_STATS_ENABLED);
-		logger.infov("Loaded statsEnabled from module properties: {0}", statsEnabled);
-
 		this.apiSocketTimeout = parseInt(keycloakConfig.getFirst(API_SOCKET_TIMEOUT));
 		logger.infov("Loaded apiSocketTimeout from module properties: {0}", apiSocketTimeout);
 
@@ -95,6 +89,9 @@ public class RestConfiguration {
 
 		this.apiConnectionRequestTimeout = parseInt(keycloakConfig.getFirst(API_CONNECTION_REQUEST_TIMEOUT));
 		logger.infov("Loaded apiConnectionRequestTimeout from module properties: {0}", apiConnectionRequestTimeout);
+
+		this.httpStatsInterval = parseInt(keycloakConfig.getFirst(HTTP_STATS_INTERVAL));
+		logger.infov("Loaded httpStatsInterval from module properties: {0}", httpStatsInterval);
 	}
 
 	public static void validate(MultivaluedHashMap<String, String> config) {
@@ -153,10 +150,9 @@ public class RestConfiguration {
 		buffer.append("oauthTokenEndpoint: " + oauthTokenEndpoint + "; ");
 		buffer.append("oauthScope: " + oauthScope + "; ");
 		buffer.append("basicUsername: " + basicUsername + "; ");
-		buffer.append("statsEnabled: " + statsEnabled + "; ");
 		buffer.append("apiSocketTimeout: " + apiSocketTimeout + "; ");
 		buffer.append("apiConnectTimeout: " + apiConnectTimeout + "; ");
-		buffer.append("apiConnectionRequestTimeout: " + statsEnabled);
+		buffer.append("apiConnectionRequestTimeout: " + apiConnectionRequestTimeout);
 
 		return buffer.toString();
 	}

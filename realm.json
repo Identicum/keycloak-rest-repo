@@ -743,8 +743,8 @@
             "apiConnectionRequestTimeout": [
               "1000"
             ],
-            "statsEnabled": [
-              "Yes"
+            "httpStatsInterval": [
+              "0"
             ],
             "baseURL": [
               "http://rest-users-api:8081/"

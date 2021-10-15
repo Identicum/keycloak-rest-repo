@@ -126,11 +126,6 @@ public class RestHandler {
 		stopOnError(executeSecuredCall(httpPatch));
 	}
 
-	public Boolean displayStats() {
-		logger.tracev("getStatsEnabled(): {0}, STATS_ENABLED_YES: {1} ", configuration.getStatsEnabled(), configuration.STATS_ENABLED_YES);
-		return configuration.getStatsEnabled().equals(configuration.STATS_ENABLED_YES);
-	}
-
 	public Map getStats() {
 		HashMap<String, Integer> stats = new HashMap<>();
 		PoolStats poolStats = poolingHttpClientConnectionManager.getTotalStats();

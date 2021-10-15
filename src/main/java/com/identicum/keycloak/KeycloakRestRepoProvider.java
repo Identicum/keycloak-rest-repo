@@ -55,9 +55,6 @@ public class KeycloakRestRepoProvider implements CredentialInputValidator,
     	this.session = session;
     	this.model = model;
     	this.restHandler = restHandler;
-		if (restHandler.displayStats()){
-			logger.infov("HTTP pool stats: {0}", restHandler.getStats().toString());
-		}
     }
 	
 	@Override

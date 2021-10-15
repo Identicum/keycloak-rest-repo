@@ -126,14 +126,14 @@ public class RestHandler {
 		stopOnError(executeSecuredCall(httpPatch));
 	}
 
-	public Map getStats() {
+	public Map<String, Integer> getStats() {
 		HashMap<String, Integer> stats = new HashMap<>();
 		PoolStats poolStats = poolingHttpClientConnectionManager.getTotalStats();
-		stats.put("availableConnections", poolStats.getAvailable());
 		stats.put("maxConnections", poolStats.getMax());
+		stats.put("defaultMaxPerRoute", poolingHttpClientConnectionManager.getDefaultMaxPerRoute());
+		stats.put("availableConnections", poolStats.getAvailable());
 		stats.put("leasedConnections", poolStats.getLeased());
 		stats.put("pendingConnections", poolStats.getPending());
-		stats.put("defaultMaxPerRoute", poolingHttpClientConnectionManager.getDefaultMaxPerRoute());
 		return stats;
 	}
 

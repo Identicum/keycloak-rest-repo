@@ -23,7 +23,7 @@ docker-compose up
 ```
 
 ## Test
-- Navigate to http://localhost:8080/auth/realms/restrepo/account
+- Navigate to http://localhost:8080/auth/realms/demorealm/account
 - Select `Sign In`
 - Register a new user
 - Sign Out

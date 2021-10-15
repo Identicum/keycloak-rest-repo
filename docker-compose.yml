@@ -7,11 +7,11 @@ services:
     environment:
       KEYCLOAK_USER: admin
       KEYCLOAK_PASSWORD: admin
-      KEYCLOAK_IMPORT: /tmp/realm.json
     volumes:
-      - ./realm.json:/tmp/realm.json
       - ./target/keycloak-rest-repo.jar:/opt/jboss/keycloak/standalone/deployments/keycloak-rest-repo.jar
       - ./startup-scripts/:/opt/jboss/startup-scripts/
+      - ./custom-scripts/:/opt/jboss/custom-scripts/
+      - ./objects/:/opt/jboss/keycloak/objects/
     ports:
       - 8080:8080
   rest-users-api:

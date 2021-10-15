@@ -99,18 +99,22 @@ public class KeycloakRestRepoProviderFactory implements UserStorageProviderFacto
 		builder.property().name(API_SOCKET_TIMEOUT)
 			.type(STRING_TYPE).label("API Socket Timeout")
 			.defaultValue("1000")
+			.helpText("Max time [milliseconds] to wait for response")
 			.add();
 		builder.property().name(API_CONNECT_TIMEOUT)
 			.type(STRING_TYPE).label("API Connect Timeout")
 			.defaultValue("1000")
+			.helpText("Max time [milliseconds] to establish the connection")
 			.add();
 		builder.property().name(API_CONNECTION_REQUEST_TIMEOUT)
 			.type(STRING_TYPE).label("API Connection Request Timeout")
 			.defaultValue("1000")
+			.helpText("Max time [milliseconds] to wait until a connection in the pool is assigned to the requesting thread")
 			.add();
 		builder.property().name(HTTP_STATS_INTERVAL)
-				.type(STRING_TYPE).label("HttpStats in secs")
+				.type(STRING_TYPE).label("HttpStats interval")
 				.defaultValue("0")
+				.helpText("How often [seconds] will the HTTP connection pool stats be displayed. 0 means disabled.")
 				.add();
 		configMetadata = builder.build();
 		this.httpStats = new Timer();

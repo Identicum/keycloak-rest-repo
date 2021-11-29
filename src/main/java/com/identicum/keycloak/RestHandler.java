@@ -21,18 +21,15 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.pool.PoolStats;
 import org.apache.http.util.EntityUtils;
 import org.jboss.logging.Logger;
+import org.keycloak.authentication.ForkFlowException;
+import org.keycloak.models.utils.FormMessage;
 
 import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.identicum.keycloak.RestConfiguration.AUTH_OAUTH;
 import static com.identicum.keycloak.RestUserAdapter.randomPassword;
@@ -58,12 +55,13 @@ public class RestHandler {
 	protected CloseableHttpClient httpClient;
 
 	private final RestConfiguration configuration;
-	private PoolingHttpClientConnectionManager poolingHttpClientConnectionManager;
+	private final PoolingHttpClientConnectionManager poolingHttpClientConnectionManager;
 
 	private String basicToken;
 	private String accessToken;
 	private String refreshToken;
 	private Date tokenExpiresAt;
+	private final String BACKEND_AUTHENTICATION_ERROR = "BACKEND_AUTHENTICATION_ERROR";
 
 	public RestHandler(RestConfiguration configuration) {
 		Integer maxConnections = configuration.getMaxConnections();
@@ -75,16 +73,16 @@ public class RestHandler {
 		this.poolingHttpClientConnectionManager.setMaxTotal(maxConnections);
 		this.poolingHttpClientConnectionManager.setDefaultMaxPerRoute(maxConnections);
 		this.poolingHttpClientConnectionManager.setDefaultSocketConfig(SocketConfig.custom()
-			.setSoTimeout(socketTimeout)
-			.build());
+				.setSoTimeout(socketTimeout)
+				.build());
 		RequestConfig requestConfig = RequestConfig.custom()
-			.setConnectTimeout(connectTimeout)
-			.setConnectionRequestTimeout(connectionRequestTimeout)
-			.build();
+				.setConnectTimeout(connectTimeout)
+				.setConnectionRequestTimeout(connectionRequestTimeout)
+				.build();
 		this.httpClient = HttpClients.custom()
-			.setDefaultRequestConfig(requestConfig)
-			.setConnectionManager(poolingHttpClientConnectionManager)
-			.build();
+				.setDefaultRequestConfig(requestConfig)
+				.setConnectionManager(poolingHttpClientConnectionManager)
+				.build();
 		this.configuration = configuration;
 	}
 
@@ -167,7 +165,7 @@ public class RestHandler {
 		JsonObject requestJson = builder.build();
 		logger.infov("Setting create body as: {0}", requestJson.toString());
 		httpPost.setEntity(new ByteArrayEntity(requestJson.toString().getBytes()));
-		
+
 		SimpleHttpResponse response = executeSecuredCall(httpPost);
 		stopOnError(response);
 		return response.getResponseAsJsonObject();
@@ -236,16 +234,20 @@ public class RestHandler {
 			return new SimpleHttpResponse(response.getStatusLine().getStatusCode(), responseString);
 		}
 		catch(ConnectionPoolTimeoutException cpte) {
-			throw new RuntimeException(format("Connection pool timeout exception: %s", cpte), cpte);
+			logger.errorv(format("Connection pool timeout exception: %s", cpte), cpte);
+			throw new ForkFlowException(new FormMessage(""), new FormMessage(BACKEND_AUTHENTICATION_ERROR));
 		}
 		catch(ConnectTimeoutException cte) {
-			throw new RuntimeException(format("Connect timeout exception: %s", cte), cte);
+			logger.errorv(format("Connect timeout exception: %s", cte), cte);
+			throw new ForkFlowException(new FormMessage(""), new FormMessage(BACKEND_AUTHENTICATION_ERROR));
 		}
 		catch(SocketTimeoutException ste) {
-			throw new RuntimeException(format("Socket timeout exception: %s", ste), ste);
+			logger.errorv(format("Socket timeout exception: %s", ste), ste);
+			throw new ForkFlowException(new FormMessage(""), new FormMessage(BACKEND_AUTHENTICATION_ERROR));
 		}
 		catch(IOException io) {
-			throw new RuntimeException(format("Error executing request: %s", io), io);
+			logger.errorv(format("Error executing request: %s", io), io);
+			throw new ForkFlowException(new FormMessage(""), new FormMessage(BACKEND_AUTHENTICATION_ERROR));
 		}
 		finally {
 			closeQuietly(response);
@@ -271,7 +273,7 @@ public class RestHandler {
 				try {
 					refreshAccessToken();
 				}
-				catch(RuntimeException re) {
+				catch(ForkFlowException re) {
 					logger.error("Error refreshing access token. Trying to generate a new one", re);
 					requestAccessToken();
 				}
@@ -330,7 +332,8 @@ public class RestHandler {
 			buffer.append("\nResponse received: ");
 			buffer.append("\n" + response.getResponse());
 			buffer.append("\nHttp Request was not success. Check logs to get more information");
-			throw new RuntimeException(buffer.toString());
+			logger.errorv(buffer.toString());
+			throw new ForkFlowException(new FormMessage(""), new FormMessage(BACKEND_AUTHENTICATION_ERROR));
 		}
 	}
 }

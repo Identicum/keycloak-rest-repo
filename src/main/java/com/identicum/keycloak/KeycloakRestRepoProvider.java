@@ -34,79 +34,65 @@ import static org.jboss.logging.Logger.getLogger;
 import static org.keycloak.models.credential.PasswordCredentialModel.TYPE;
 
 public class KeycloakRestRepoProvider implements CredentialInputValidator,
-												 CredentialInputUpdater,
-												 UserStorageProvider,
-												 UserLookupProvider,
-												 UserQueryProvider,
-												 UserRegistrationProvider {
+		CredentialInputUpdater,
+		UserStorageProvider,
+		UserLookupProvider,
+		UserQueryProvider,
+		UserRegistrationProvider {
 
 	private static final Logger logger = getLogger(KeycloakRestRepoProvider.class);
-	
-    protected KeycloakSession session;
-    protected ComponentModel model;
-    
-    // map of loaded users in this transaction
-    protected Map<String, RestUserAdapter> loadedUsers = new HashMap<>();
-    
-    protected RestHandler restHandler;
 
-    public KeycloakRestRepoProvider(KeycloakSession session, ComponentModel model, RestHandler restHandler) {
-    	logger.info("Initializing new RestRepoProvider");
-    	this.session = session;
-    	this.model = model;
-    	this.restHandler = restHandler;
-    }
-	
+	protected KeycloakSession session;
+	protected ComponentModel model;
+
+	// map of loaded users in this transaction
+	protected Map<String, RestUserAdapter> loadedUsers = new HashMap<>();
+
+	protected RestHandler restHandler;
+
+	public KeycloakRestRepoProvider(KeycloakSession session, ComponentModel model, RestHandler restHandler) {
+		logger.info("Initializing new RestRepoProvider");
+		this.session = session;
+		this.model = model;
+		this.restHandler = restHandler;
+	}
+
 	@Override
 	public void close() {
 	}
 
 	@Override
 	public UserModel getUserByEmail(String email, RealmModel realm) {
-		return null;
+		logger.infov("Getting user: {0} by email", email);
+		return this.getUser(email, realm);
 	}
 
 	@Override
 	public UserModel getUserById(String id, RealmModel realm) {
 		logger.infov("Getting user by id: {0}", id);
-		String userId = new StorageId(id).getExternalId();
-
-		logger.debugv("Cache size is: {0}", loadedUsers.size());
-		RestUserAdapter adapter = loadedUsers.get(userId);
-		if (adapter == null) {
-			JsonObject userJson = restHandler.findUserByUsername(userId);
-			if(userJson == null) {
-				logger.infov("User Id {0} not found in repo", userId);
-				return null;
-			}
-			adapter = new RestUserAdapter(session, realm, model, userJson);
-			adapter.setHandler(restHandler);
-			logger.infov("Setting user id {0} into cache", userId);
-			loadedUsers.put(userId, adapter);
-		}
-		else {
-			logger.infov("Returning user id {0} from cache", userId);
-		}
-		return adapter;
+		return this.getUser(StorageId.externalId(id), realm);
 	}
 
 	@Override
 	public UserModel getUserByUsername(String username, RealmModel realm) {
-		logger.infov("Cache size is: {0}", loadedUsers.size());
-		RestUserAdapter adapter = loadedUsers.get(username);
+		logger.infov("Getting user: {0} by username", username);
+		return this.getUser(username, realm);
+	}
+
+	public UserModel getUser(String query, RealmModel realm) {
+		logger.debugv("Cache size is: {0}", loadedUsers.size());
+
+		RestUserAdapter adapter = loadedUsers.get(query);
 		if (adapter == null) {
-			JsonObject userJson = restHandler.findUserByUsername(username);
-			if(userJson == null) {
-				logger.infov("User {0} not found in repo", username);
+			JsonObject userJson = this.restHandler.findUserByUsername(query);
+			if (userJson == null) {
+				logger.debugv("User {0} not found in repo", query);
 				return null;
 			}
 			adapter = new RestUserAdapter(session, realm, model, userJson);
-			adapter.setHandler(restHandler);
-			logger.infov("Setting user {0} into cache", username);
-			loadedUsers.put(username, adapter);
-		}
-		else {
-			logger.infov("Returning user {0} from cache", username);
+			adapter.setHandler(this.restHandler);
+		} else {
+			logger.debugv("Returning user {0} from cache", query);
 		}
 		return adapter;
 	}

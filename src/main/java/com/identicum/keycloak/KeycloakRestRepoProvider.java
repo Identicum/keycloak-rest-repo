@@ -34,11 +34,11 @@ import static org.jboss.logging.Logger.getLogger;
 import static org.keycloak.models.credential.PasswordCredentialModel.TYPE;
 
 public class KeycloakRestRepoProvider implements CredentialInputValidator,
-		CredentialInputUpdater,
-		UserStorageProvider,
-		UserLookupProvider,
-		UserQueryProvider,
-		UserRegistrationProvider {
+												 CredentialInputUpdater,
+												 UserStorageProvider,
+												 UserLookupProvider,
+												 UserQueryProvider,
+												 UserRegistrationProvider {
 
 	private static final Logger logger = getLogger(KeycloakRestRepoProvider.class);
 

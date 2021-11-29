@@ -65,7 +65,7 @@
 				<configuration>
 					<archive>
 						<manifestEntries>
-							<Implementation-Version>${pom.version}.${maven.build.timestamp}</Implementation-Version>
+							<Implementation-Version>${project.version}.${maven.build.timestamp}</Implementation-Version>
 						</manifestEntries>
 					</archive>
 				</configuration>

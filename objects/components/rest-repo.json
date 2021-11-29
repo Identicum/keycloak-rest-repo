@@ -4,7 +4,6 @@
     "providerId": "rest-repo-provider",
     "providerType": "org.keycloak.storage.UserStorageProvider",
     "config": {
-        "statsEnabled": [ "Yes" ],
         "maxHttpConnections": [ "5" ],
         "apiSocketTimeout": [ "1000" ],
         "apiConnectTimeout": [ "1000" ],

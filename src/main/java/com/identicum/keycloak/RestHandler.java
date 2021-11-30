@@ -234,19 +234,19 @@ public class RestHandler {
 			return new SimpleHttpResponse(response.getStatusLine().getStatusCode(), responseString);
 		}
 		catch(ConnectionPoolTimeoutException cpte) {
-			logger.errorv(format("Connection pool timeout exception: %s", cpte), cpte);
+			logger.errorv("Connection pool timeout exception: {0}", cpte);
 			throw new ForkFlowException(new FormMessage(""), new FormMessage(BACKEND_AUTHENTICATION_ERROR));
 		}
 		catch(ConnectTimeoutException cte) {
-			logger.errorv(format("Connect timeout exception: %s", cte), cte);
+			logger.errorv("Connect timeout exception: {0}", cte);
 			throw new ForkFlowException(new FormMessage(""), new FormMessage(BACKEND_AUTHENTICATION_ERROR));
 		}
 		catch(SocketTimeoutException ste) {
-			logger.errorv(format("Socket timeout exception: %s", ste), ste);
+			logger.errorv("Socket timeout exception: {0}", ste);
 			throw new ForkFlowException(new FormMessage(""), new FormMessage(BACKEND_AUTHENTICATION_ERROR));
 		}
 		catch(IOException io) {
-			logger.errorv(format("Error executing request: %s", io), io);
+			logger.errorv("Error executing request: {0}", io);
 			throw new ForkFlowException(new FormMessage(""), new FormMessage(BACKEND_AUTHENTICATION_ERROR));
 		}
 		finally {

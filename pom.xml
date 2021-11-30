@@ -1,10 +1,9 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<groupId>com.identicum.keycloak</groupId>
 	<artifactId>keycloak-rest-repo</artifactId>
 	<name>Keycloak Rest Repo</name>
 	<description>Plugin para consumir identidades de Keycloak</description>
-	<version>1.0.0-SNAPSHOT</version>
+	<version>1.0.0</version>
 	<modelVersion>4.0.0</modelVersion>
 
 	<properties>
@@ -50,7 +49,7 @@
 
 	<scm>
 		<developerConnection>scm:git:https://github.com/osorionicolas/keycloak-rest-repo</developerConnection>
-		<tag>HEAD</tag>
+		<tag>keycloak-rest-repo-1.0.0</tag>
 	</scm>
 
 	<distributionManagement>

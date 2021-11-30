@@ -3,7 +3,7 @@
 	<artifactId>keycloak-rest-repo</artifactId>
 	<name>Keycloak Rest Repo</name>
 	<description>Plugin para consumir identidades de Keycloak</description>
-	<version>1.0.0</version>
+	<version>1.0.1-SNAPSHOT</version>
 	<modelVersion>4.0.0</modelVersion>
 
 	<properties>
@@ -49,7 +49,7 @@
 
 	<scm>
 		<developerConnection>scm:git:https://github.com/osorionicolas/keycloak-rest-repo</developerConnection>
-		<tag>keycloak-rest-repo-1.0.0</tag>
+		<tag>HEAD</tag>
 	</scm>
 
 	<distributionManagement>

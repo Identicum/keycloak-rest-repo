@@ -49,7 +49,7 @@
 	</dependencies>
 
 	<scm>
-		<developerConnection>scm:git:https://github.com/identicum/keycloak-rest-repo</developerConnection>
+		<developerConnection>scm:git:https://github.com/osorionicolas/keycloak-rest-repo</developerConnection>
 		<tag>HEAD</tag>
 	</scm>
 
@@ -57,7 +57,7 @@
 		<repository>
 			<id>github</id>
 			<name>GitHub Packages</name>
-			<url>https://maven.pkg.github.com/identicum/keycloak-rest-repo</url>
+			<url>https://maven.pkg.github.com/osorionicolas/keycloak-rest-repo</url>
 		</repository>
 	</distributionManagement>
 

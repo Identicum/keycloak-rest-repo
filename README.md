@@ -14,7 +14,7 @@ All user management functions are implemented:
 
 ## Compile module
 ```sh
-mvn clean install
+mvn clean package
 ```
 
 ## Run project

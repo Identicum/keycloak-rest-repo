@@ -2,11 +2,13 @@ version: '3'
 
 services:
   keycloak:
-    image: jboss/keycloak:15.0.2
+    container_name: keycloak
+    image: quay.io/keycloak/keycloak:19.0.3-legacy
     restart: always
     environment:
       KEYCLOAK_USER: admin
       KEYCLOAK_PASSWORD: admin
+      JAVA_OPTS_APPEND: -Dkeycloak.profile.feature.admin2=disabled
     volumes:
       - ./target/keycloak-rest-repo.jar:/opt/jboss/keycloak/standalone/deployments/keycloak-rest-repo.jar
       - ./startup-scripts/:/opt/jboss/startup-scripts/
@@ -15,7 +17,9 @@ services:
     ports:
       - 8080:8080
   rest-users-api:
+    container_name: rest-users-api
     image: identicum/rest-users-api
+    pull_policy: always
     restart: always
     ports:
       - 8081:8081

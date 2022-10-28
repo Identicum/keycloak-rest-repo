@@ -1,10 +1,7 @@
-<jboss-deployment-structure>
+<jboss-deployment-structure xmlns="urn:jboss:deployment-structure:1.2">
     <deployment>
         <dependencies>
-            <module name="org.keycloak.keycloak-server-spi" export="true"/>
-            <module name="org.keycloak.keycloak-core" export="true"/>
-            <module name="org.jboss.logging" export="true"/>
-            <module name="org.keycloak.keycloak-services" export="true"/>
+            <module name="org.keycloak.keycloak-model-legacy" meta-inf="import"/>
         </dependencies>
     </deployment>
 </jboss-deployment-structure>

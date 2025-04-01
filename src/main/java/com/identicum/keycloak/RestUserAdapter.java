@@ -6,7 +6,7 @@ import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 import org.keycloak.storage.adapter.AbstractUserAdapterFederatedStorage;
 
-import javax.json.JsonObject;
+import jakarta.json.JsonObject;
 import java.util.List;
 import java.util.Random;
 

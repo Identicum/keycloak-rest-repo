@@ -8,10 +8,7 @@ import org.keycloak.credential.CredentialInputValidator;
 
 import jakarta.json.JsonArray;
 import jakarta.json.JsonObject;
-import org.keycloak.models.KeycloakSession;
-import org.keycloak.models.RealmModel;
-import org.keycloak.models.RoleModel;
-import org.keycloak.models.UserModel;
+import org.keycloak.models.*;
 import org.keycloak.models.credential.PasswordCredentialModel;
 import org.keycloak.storage.StorageId;
 import org.keycloak.storage.UserStorageProvider;
@@ -145,16 +142,6 @@ public class KeycloakRestRepoProvider implements CredentialInputValidator,
 	}
 
 	@Override
-	public List<UserModel> getUsers(RealmModel realmModel) {
-		return getUsers(realmModel, 0, MAX_VALUE);
-	}
-
-	@Override
-	public List<UserModel> getUsers(RealmModel realmModel, int from, int pageSize) {
-		return searchForUser("", realmModel, from, pageSize);
-	}
-
-	@Override
 	public Stream<UserModel> searchForUserStream(RealmModel realmModel, String pattern) {
 		return searchForUserStream(realmModel, pattern, 0, MAX_VALUE);
 	}
@@ -220,4 +207,7 @@ public class KeycloakRestRepoProvider implements CredentialInputValidator,
 		loadedUsers.remove(userModel.getUsername());
 		return true;
 	}
+
+
+
 }

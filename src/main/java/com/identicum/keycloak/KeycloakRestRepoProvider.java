@@ -17,17 +17,14 @@ import org.keycloak.storage.user.UserQueryProvider;
 import org.keycloak.storage.user.UserRegistrationProvider;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Stream;
 
 import static com.identicum.keycloak.RestUserAdapter.randomPassword;
 import static java.lang.Integer.MAX_VALUE;
 import static java.lang.Math.min;
-import static java.util.Collections.EMPTY_LIST;
 import static org.jboss.logging.Logger.getLogger;
 import static org.keycloak.models.credential.PasswordCredentialModel.TYPE;
 
@@ -177,8 +174,8 @@ public class KeycloakRestRepoProvider implements CredentialInputValidator,
 	}
 
 	@Override
-	public int getUsersCount(RealmModel realm, boolean includeServiceAccount) {
-		return getUsers(realm).size();
+	public Stream<UserModel> getGroupMembersStream(RealmModel realm, GroupModel group, Integer firstResult, Integer maxResults) {
+		return null;
 	}
 
 	@Override

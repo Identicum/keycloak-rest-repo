@@ -10,8 +10,10 @@ import jakarta.json.JsonArray;
 import jakarta.json.JsonObject;
 import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
+import org.keycloak.models.RoleModel;
 import org.keycloak.models.UserModel;
 import org.keycloak.models.credential.PasswordCredentialModel;
+import org.keycloak.storage.StorageId;
 import org.keycloak.storage.UserStorageProvider;
 import org.keycloak.storage.user.UserLookupProvider;
 import org.keycloak.storage.user.UserQueryProvider;
@@ -153,8 +155,8 @@ public class KeycloakRestRepoProvider implements CredentialInputValidator,
 	}
 
 	@Override
-	public Stream<UserModel> searchForUser(RealmModel realmModel, String pattern) {
-		return searchForUser(pattern, realmModel, 0, MAX_VALUE);
+	public Stream<UserModel> searchForUserStream(RealmModel realmModel, String pattern) {
+		return searchForUserStream(realmModel, pattern, 0, MAX_VALUE);
 	}
 
 	@Override
@@ -173,27 +175,17 @@ public class KeycloakRestRepoProvider implements CredentialInputValidator,
 	}
 
 	@Override
-	public Stream<UserModel> searchForUser(RealmModel realmModel, Map<String, String> map) {
-		return searchForUser(map.get("username"), realmModel);
+	public Stream<UserModel> searchForUserStream(RealmModel realmModel, Map<String, String> map) {
+		return searchForUserStream(realmModel, map.get("username"));
 	}
 
 	@Override
-	public Stream<UserModel> searchForUser(Map<String, String> map, RealmModel realmModel, int from, int pageSize) {
-		return searchForUser(map.get("username"), realmModel, from, pageSize);
+	public Stream<UserModel> searchForUserStream(RealmModel realmModel, Map<String, String> map, Integer from, Integer pageSize) {
+		return searchForUserStream(realmModel, map.get("username"), from, pageSize);
 	}
 
 	@Override
-	public Stream<UserModel> getGroupMembers(RealmModel realmModel, GroupModel groupModel, int from, int pageSize) {
-		return null;
-	}
-
-	@Override
-	public Stream<UserModel> getGroupMembers(RealmModel realmModel, GroupModel groupModel) {
-		return null;
-	}
-
-	@Override
-	public Stream<UserModel> searchForUserByUserAttribute(String s, String s1, RealmModel realmModel) {
+	public Stream<UserModel> searchForUserByUserAttributeStream(RealmModel realm, String attrName, String attrValue) {
 		return null;
 	}
 
@@ -203,12 +195,12 @@ public class KeycloakRestRepoProvider implements CredentialInputValidator,
 	}
 
 	@Override
-	public Stream<UserModel> getRoleMembers(RealmModel realm, RoleModel role) {
+	public Stream<UserModel> getRoleMembersStream(RealmModel realm, RoleModel role) {
 		return null;
 	}
 
 	@Override
-	public Stream<UserModel> getRoleMembers(RealmModel realm, RoleModel role, int from, int pageSize) {
+	public Stream<UserModel> getRoleMembersStream(RealmModel realm, RoleModel role, Integer firstResult, Integer maxResults) {
 		return null;
 	}
 

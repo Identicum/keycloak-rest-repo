@@ -2,8 +2,8 @@
 		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<groupId>com.identicum.keycloak</groupId>
 	<artifactId>keycloak-rest-repo</artifactId>
-	<name>Keycloak Rest Repo</name>
-	<description>Plugin para consumir identidades de Keycloak</description>
+	<name>Keycloak REST repo provider SPI</name>
+	<description>Keycloak repo provider SPI to consume REST API</description>
 	<version>1.0.0-SNAPSHOT</version>
 	<modelVersion>4.0.0</modelVersion>
 

@@ -6,3 +6,5 @@
 /.project
 *.iml
 /.vscode/*
+.terraform*
+terraform.tfstate*

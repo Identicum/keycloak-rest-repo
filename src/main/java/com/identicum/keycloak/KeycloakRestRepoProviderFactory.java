@@ -1,5 +1,6 @@
 package com.identicum.keycloak;
 
+import com.google.auto.service.AutoService;
 import org.jboss.logging.Logger;
 import org.keycloak.Config.Scope;
 import org.keycloak.common.util.MultivaluedHashMap;
@@ -37,6 +38,7 @@ import static org.keycloak.provider.ProviderConfigProperty.LIST_TYPE;
 import static org.keycloak.provider.ProviderConfigProperty.PASSWORD;
 import static org.keycloak.provider.ProviderConfigProperty.STRING_TYPE;
 
+@AutoService(UserStorageProviderFactory.class)
 public class KeycloakRestRepoProviderFactory implements UserStorageProviderFactory<KeycloakRestRepoProvider> {
 
 	private static final Logger logger = getLogger(KeycloakRestRepoProviderFactory.class);

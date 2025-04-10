@@ -5,31 +5,26 @@ import org.keycloak.component.ComponentModel;
 import org.keycloak.credential.CredentialInput;
 import org.keycloak.credential.CredentialInputUpdater;
 import org.keycloak.credential.CredentialInputValidator;
-import org.keycloak.models.GroupModel;
-import org.keycloak.models.KeycloakSession;
-import org.keycloak.models.RealmModel;
-import org.keycloak.models.RoleModel;
-import org.keycloak.models.UserCredentialModel;
-import org.keycloak.models.UserModel;
+
+import jakarta.json.JsonArray;
+import jakarta.json.JsonObject;
+import org.keycloak.models.*;
+import org.keycloak.models.credential.PasswordCredentialModel;
 import org.keycloak.storage.StorageId;
 import org.keycloak.storage.UserStorageProvider;
 import org.keycloak.storage.user.UserLookupProvider;
 import org.keycloak.storage.user.UserQueryProvider;
 import org.keycloak.storage.user.UserRegistrationProvider;
 
-import javax.json.JsonArray;
-import javax.json.JsonObject;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.stream.Stream;
 
 import static com.identicum.keycloak.RestUserAdapter.randomPassword;
 import static java.lang.Integer.MAX_VALUE;
 import static java.lang.Math.min;
-import static java.util.Collections.EMPTY_LIST;
 import static org.jboss.logging.Logger.getLogger;
 import static org.keycloak.models.credential.PasswordCredentialModel.TYPE;
 
@@ -62,19 +57,19 @@ public class KeycloakRestRepoProvider implements CredentialInputValidator,
 	}
 
 	@Override
-	public UserModel getUserByEmail(String email, RealmModel realm) {
+	public UserModel getUserByEmail(RealmModel realm, String email) {
 		logger.infov("Getting user: {0} by email", email);
 		return this.getUser(email, realm);
 	}
 
 	@Override
-	public UserModel getUserById(String id, RealmModel realm) {
+	public UserModel getUserById(RealmModel realm, String id) {
 		logger.infov("Getting user by id: {0}", id);
 		return this.getUser(StorageId.externalId(id), realm);
 	}
 
 	@Override
-	public UserModel getUserByUsername(String username, RealmModel realm) {
+	public UserModel getUserByUsername(RealmModel realm, String username) {
 		logger.infov("Getting user: {0} by username", username);
 		return this.getUser(username, realm);
 	}
@@ -134,10 +129,8 @@ public class KeycloakRestRepoProvider implements CredentialInputValidator,
 	}
 
 	@Override
-	public Set<String> getDisableableCredentialTypes(RealmModel realmModel, UserModel userModel) {
-		Set<String> set = new HashSet<>();
-		set.add(TYPE);
-		return set;
+	public Stream<String> getDisableableCredentialTypesStream(RealmModel realmModel, UserModel userModel) {
+		return Stream.of(PasswordCredentialModel.TYPE);
 	}
 
 	@Override
@@ -146,22 +139,12 @@ public class KeycloakRestRepoProvider implements CredentialInputValidator,
 	}
 
 	@Override
-	public List<UserModel> getUsers(RealmModel realmModel) {
-		return getUsers(realmModel, 0, MAX_VALUE);
+	public Stream<UserModel> searchForUserStream(RealmModel realmModel, String pattern) {
+		return searchForUserStream(realmModel, pattern, 0, MAX_VALUE);
 	}
 
 	@Override
-	public List<UserModel> getUsers(RealmModel realmModel, int from, int pageSize) {
-		return searchForUser("", realmModel, from, pageSize);
-	}
-
-	@Override
-	public List<UserModel> searchForUser(String pattern, RealmModel realmModel) {
-		return searchForUser(pattern, realmModel, 0, MAX_VALUE);
-	}
-
-	@Override
-	public List<UserModel> searchForUser(String pattern, RealmModel realmModel, int from, int pageSize) {
+	public Stream<UserModel> searchForUserStream(RealmModel realmModel, String pattern, Integer from, Integer pageSize) {
 		logger.infov("Searching users with pattern: {0} from {1} with pageSize {2}", pattern, from, pageSize);
 		JsonArray usersJson = restHandler.findUsers(pattern);
 		logger.infov("Found {0} users", usersJson.size());
@@ -172,47 +155,37 @@ public class KeycloakRestRepoProvider implements CredentialInputValidator,
 			userModel.setHandler(restHandler);
 			users.add(userModel);
 		}
-		return users;
+		return users.stream();
 	}
 
 	@Override
-	public List<UserModel> searchForUser(Map<String, String> map, RealmModel realmModel) {
-		return searchForUser(map.get("username"), realmModel);
+	public Stream<UserModel> searchForUserStream(RealmModel realmModel, Map<String, String> map) {
+		return searchForUserStream(realmModel, map.get("username"));
 	}
 
 	@Override
-	public List<UserModel> searchForUser(Map<String, String> map, RealmModel realmModel, int from, int pageSize) {
-		return searchForUser(map.get("username"), realmModel, from, pageSize);
+	public Stream<UserModel> searchForUserStream(RealmModel realmModel, Map<String, String> map, Integer from, Integer pageSize) {
+		return searchForUserStream(realmModel, map.get("username"), from, pageSize);
 	}
 
 	@Override
-	public List<UserModel> getGroupMembers(RealmModel realmModel, GroupModel groupModel, int from, int pageSize) {
-		return EMPTY_LIST;
+	public Stream<UserModel> searchForUserByUserAttributeStream(RealmModel realm, String attrName, String attrValue) {
+		return null;
 	}
 
 	@Override
-	public List<UserModel> getGroupMembers(RealmModel realmModel, GroupModel groupModel) {
-		return EMPTY_LIST;
+	public Stream<UserModel> getGroupMembersStream(RealmModel realm, GroupModel group, Integer firstResult, Integer maxResults) {
+		return null;
 	}
 
 	@Override
-	public List<UserModel> searchForUserByUserAttribute(String s, String s1, RealmModel realmModel) {
-		return EMPTY_LIST;
+	public Stream<UserModel> getRoleMembersStream(RealmModel realm, RoleModel role) {
+		return null;
 	}
 
 	@Override
-	public int getUsersCount(RealmModel realm, boolean includeServiceAccount) {
-		return getUsers(realm).size();
-	}
-
-	@Override
-	public List<UserModel> getRoleMembers(RealmModel realm, RoleModel role) {
-		return EMPTY_LIST;
-	}
-
-	@Override
-	public List<UserModel> getRoleMembers(RealmModel realm, RoleModel role, int from, int pageSize) {
-		return EMPTY_LIST;
+	public Stream<UserModel> getRoleMembersStream(RealmModel realm, RoleModel role, Integer firstResult, Integer maxResults) {
+		return null;
 	}
 
 	@Override
@@ -231,4 +204,7 @@ public class KeycloakRestRepoProvider implements CredentialInputValidator,
 		loadedUsers.remove(userModel.getUsername());
 		return true;
 	}
+
+
+
 }

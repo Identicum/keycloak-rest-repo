@@ -6,8 +6,11 @@ import org.keycloak.models.KeycloakSession;
 import org.keycloak.models.RealmModel;
 import org.keycloak.storage.adapter.AbstractUserAdapterFederatedStorage;
 
-import javax.json.JsonObject;
+import jakarta.json.JsonObject;
+
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import static java.lang.String.valueOf;
@@ -56,6 +59,10 @@ public class RestUserAdapter extends AbstractUserAdapterFederatedStorage {
 	public String getEmail() {
 		return user.getString("email");
 	}
+	@Override
+	public boolean isEnabled() {
+		return user.getBoolean("active");
+	}
 
 	@Override
 	public void setEnabled(boolean enabled) {
@@ -100,16 +107,29 @@ public class RestUserAdapter extends AbstractUserAdapterFederatedStorage {
 	@Override
 	public void setSingleAttribute(String name, String value) {
 		logger.infov("Setting single attribute: {0} -> {1}", name, value);
+		handler.setUserAttribute(getUsername(), name, value);
 	}
 
 	@Override
 	public void setAttribute(String name, List<String> values) {
 		logger.infov("Setting attribute: {0} -> {1}", name, values);
+		if (values != null && !values.isEmpty()) {
+			handler.setUserAttribute(getUsername(), name, values.get(0));
+		}
 	}
 
 	@Override
 	public void setEmailVerified(boolean verified) {
 		logger.infov("Setting email verified: {0}", verified);
+	}
+
+	@Override
+	public Map<String, List<String>> getAttributes() {
+		Map<String, List<String>> attrs = new HashMap<>();
+		if (user.containsKey("firstName")) attrs.put("firstName", List.of(getFirstName()));
+		if (user.containsKey("lastName")) attrs.put("lastName", List.of(getLastName()));
+		if (user.containsKey("email")) attrs.put("email", List.of(getEmail()));
+		return attrs;
 	}
 
 	public static String randomPassword() {

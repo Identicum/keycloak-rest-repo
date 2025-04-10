@@ -126,15 +126,9 @@ public class RestUserAdapter extends AbstractUserAdapterFederatedStorage {
 	@Override
 	public Map<String, List<String>> getAttributes() {
 		Map<String, List<String>> attrs = new HashMap<>();
-		if (user.containsKey("firstName")) {
-			attrs.put("firstName", List.of(getFirstName()));
-		}
-		if (user.containsKey("lastName")) {
-			attrs.put("lastName", List.of(getLastName()));
-		}
-		if (user.containsKey("email")) {
-			attrs.put("email", List.of(getEmail()));
-		}
+		if (user.containsKey("firstName")) attrs.put("firstName", List.of(getFirstName()));
+		if (user.containsKey("lastName")) attrs.put("lastName", List.of(getLastName()));
+		if (user.containsKey("email")) attrs.put("email", List.of(getEmail()));
 		return attrs;
 	}
 
